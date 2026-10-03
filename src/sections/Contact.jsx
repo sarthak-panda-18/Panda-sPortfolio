@@ -1,80 +1,112 @@
 import React, { useState } from 'react';
 import { contact, profile, social } from '../data/content';
 import { Button } from '../components/Button';
-import { Mail, Send, CheckCircle2, ArrowUpRight, Github, Linkedin } from 'lucide-react';
+import { Mail, Send, CheckCircle2, ArrowUpRight, Github, Linkedin, AlertCircle } from 'lucide-react';
 
 export function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
+    botcheck: false,
   });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [statusError, setStatusError] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
-
-    setIsSubmitting(true);
-    setStatusError('');
-
-    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
-
-    // If an access key is configured, submit via Web3Forms API
-    if (accessKey && accessKey !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
-      try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            access_key: accessKey,
-            name: formData.name,
-            email: formData.email,
-            message: formData.message,
-            subject: `Portfolio Message from ${formData.name}`,
-            from_name: 'Sarthak Panda Portfolio',
-          }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          setIsSubmitted(true);
-          setFormData({ name: '', email: '', message: '' });
-          setIsSubmitting(false);
-          return;
-        } else {
-          throw new Error(result.message || 'Submission failed');
-        }
-      } catch (err) {
-        console.warn('Web3Forms submission failed, offering mailto fallback:', err);
-        setStatusError('Could not connect to email service. Click below to send directly via your email app.');
-        setIsSubmitting(false);
-        return;
-      }
+  const validate = (values) => {
+    const errs = {};
+    if (!values.name || !values.name.trim()) {
+      errs.name = 'Please enter your name.';
     }
+    if (!values.email || !values.email.trim()) {
+      errs.email = 'Please enter your email address.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+      errs.email = 'Please enter a valid email address.';
+    }
+    if (!values.message || !values.message.trim()) {
+      errs.message = 'Please enter your message.';
+    }
+    return errs;
+  };
 
-    // Default fallback: Trigger mailto with prefilled details and show success
-    const subject = encodeURIComponent(`Portfolio Inquiry from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    );
-    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', message: '' });
-    }, 400);
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const currentErrors = validate(formData);
+    setErrors((prev) => ({ ...prev, [field]: currentErrors[field] }));
   };
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (statusError) setStatusError('');
+    const { name, value, type, checked } = e.target;
+    const val = type === 'checkbox' ? checked : value;
+    setFormData((prev) => ({ ...prev, [name]: val }));
+    if (submitError) setSubmitError('');
+    if (touched[name]) {
+      const updatedErrors = validate({ ...formData, [name]: val });
+      setErrors((prev) => ({ ...prev, [name]: updatedErrors[name] }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Spam bot check via honeypot field
+    if (formData.botcheck) {
+      return;
+    }
+
+    const validationErrors = validate(formData);
+    setTouched({ name: true, email: true, message: true });
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+
+    if (!accessKey) {
+      setSubmitError('Web forms service is not configured. Please reach out directly via email.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+          subject: `Portfolio Message from ${formData.name.trim()}`,
+          from_name: 'Sarthak Panda Portfolio',
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', message: '', botcheck: false });
+        setErrors({});
+        setTouched({});
+      } else {
+        setSubmitError(result.message || 'Unable to send message. Please try again or reach out directly.');
+      }
+    } catch {
+      setSubmitError('Network error. Please check your connection or reach out directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -176,7 +208,20 @@ export function Contact() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                {/* Honeypot field for spam prevention */}
+                <input
+                  type="checkbox"
+                  name="botcheck"
+                  checked={formData.botcheck}
+                  onChange={handleChange}
+                  className="hidden"
+                  style={{ display: 'none' }}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+
+                {/* Name Field */}
                 <div>
                   <label htmlFor="contact-name" className="label block text-[10px] mb-1.5">
                     Your Name
@@ -188,11 +233,25 @@ export function Contact() {
                     required
                     value={formData.name}
                     onChange={handleChange}
+                    onBlur={() => handleBlur('name')}
                     placeholder="Sarthak Panda"
-                    className="w-full px-4 py-3 rounded-card bg-sand/50 border border-hairline text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:border-clay focus:outline-none transition-colors duration-fast"
+                    aria-invalid={Boolean(touched.name && errors.name)}
+                    aria-describedby={touched.name && errors.name ? 'contact-name-error' : undefined}
+                    className={`w-full px-4 py-3 rounded-card bg-sand/50 border text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:outline-none transition-colors duration-fast ${
+                      touched.name && errors.name
+                        ? 'border-clay focus:border-clay ring-1 ring-clay/30'
+                        : 'border-hairline focus:border-clay'
+                    }`}
                   />
+                  {touched.name && errors.name && (
+                    <p id="contact-name-error" className="text-[11px] text-clay mt-1 font-medium flex items-center gap-1">
+                      <AlertCircle size={12} strokeWidth={2} />
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
 
+                {/* Email Field */}
                 <div>
                   <label htmlFor="contact-email" className="label block text-[10px] mb-1.5">
                     Your Email
@@ -204,11 +263,25 @@ export function Contact() {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={() => handleBlur('email')}
                     placeholder="sarthakpanda.outlook@gmail.com"
-                    className="w-full px-4 py-3 rounded-card bg-sand/50 border border-hairline text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:border-clay focus:outline-none transition-colors duration-fast"
+                    aria-invalid={Boolean(touched.email && errors.email)}
+                    aria-describedby={touched.email && errors.email ? 'contact-email-error' : undefined}
+                    className={`w-full px-4 py-3 rounded-card bg-sand/50 border text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:outline-none transition-colors duration-fast ${
+                      touched.email && errors.email
+                        ? 'border-clay focus:border-clay ring-1 ring-clay/30'
+                        : 'border-hairline focus:border-clay'
+                    }`}
                   />
+                  {touched.email && errors.email && (
+                    <p id="contact-email-error" className="text-[11px] text-clay mt-1 font-medium flex items-center gap-1">
+                      <AlertCircle size={12} strokeWidth={2} />
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
+                {/* Message Field */}
                 <div>
                   <label htmlFor="contact-message" className="label block text-[10px] mb-1.5">
                     Your Message
@@ -220,19 +293,36 @@ export function Contact() {
                     rows={4}
                     value={formData.message}
                     onChange={handleChange}
+                    onBlur={() => handleBlur('message')}
                     placeholder="Tell me about your project, internship, or opportunity..."
-                    className="w-full px-4 py-3 rounded-card bg-sand/50 border border-hairline text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:border-clay focus:outline-none resize-none transition-colors duration-fast"
+                    aria-invalid={Boolean(touched.message && errors.message)}
+                    aria-describedby={touched.message && errors.message ? 'contact-message-error' : undefined}
+                    className={`w-full px-4 py-3 rounded-card bg-sand/50 border text-forest placeholder:text-forest-muted/50 text-sm focus:bg-sand focus:outline-none resize-none transition-colors duration-fast ${
+                      touched.message && errors.message
+                        ? 'border-clay focus:border-clay ring-1 ring-clay/30'
+                        : 'border-hairline focus:border-clay'
+                    }`}
                   />
+                  {touched.message && errors.message && (
+                    <p id="contact-message-error" className="text-[11px] text-clay mt-1 font-medium flex items-center gap-1">
+                      <AlertCircle size={12} strokeWidth={2} />
+                      {errors.message}
+                    </p>
+                  )}
                 </div>
 
-                {statusError && (
-                  <div className="p-3 rounded-card bg-red-500/10 border border-red-500/20 text-xs text-red-600 dark:text-red-400 space-y-2">
-                    <p>{statusError}</p>
+                {/* Submission Error Alert */}
+                {submitError && (
+                  <div className="p-3 rounded-card bg-clay/10 border border-clay/30 text-xs text-clay space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-medium">
+                      <AlertCircle size={14} strokeWidth={2} />
+                      <span>{submitError}</span>
+                    </div>
                     <a
                       href={`mailto:${contact.email}?subject=${encodeURIComponent(
                         `Portfolio Message from ${formData.name || 'Visitor'}`
                       )}&body=${encodeURIComponent(formData.message || '')}`}
-                      className="inline-block font-medium text-clay hover:underline underline-offset-4"
+                      className="inline-block font-medium underline underline-offset-4 hover:text-forest"
                     >
                       Click here to email directly →
                     </a>

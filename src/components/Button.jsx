@@ -17,6 +17,8 @@ export function Button({
   target,
   rel,
   ariaLabel,
+  type = 'button',
+  disabled = false,
   ...props
 }) {
   const { prefersReducedMotion, isMobile } = useReducedMotion();
@@ -126,10 +128,13 @@ export function Button({
 
   return (
     <button
-      type="button"
+      type={type}
+      disabled={disabled}
       onClick={handleClick}
       aria-label={ariaLabel}
-      className="inline-block bg-transparent p-0 border-0 focus-visible:outline-none"
+      className={`inline-block bg-transparent p-0 border-0 focus-visible:outline-none rounded-pill ${
+        disabled ? 'opacity-60 cursor-not-allowed' : ''
+      }`}
     >
       {content}
     </button>
