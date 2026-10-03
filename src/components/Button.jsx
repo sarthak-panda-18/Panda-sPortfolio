@@ -132,9 +132,8 @@ export function Button({
       disabled={disabled}
       onClick={handleClick}
       aria-label={ariaLabel}
-      className={`inline-block bg-transparent p-0 border-0 focus-visible:outline-none rounded-pill ${
-        disabled ? 'opacity-60 cursor-not-allowed' : ''
-      }`}
+      className={`inline-block bg-transparent p-0 border-0 focus-visible:outline-none rounded-pill ${disabled ? 'opacity-60 cursor-not-allowed' : ''
+        }`}
     >
       {content}
     </button>
