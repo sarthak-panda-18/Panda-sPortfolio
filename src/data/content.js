@@ -30,9 +30,9 @@ export const social = {
 };
 
 export const nav = [
-  { label: "Work", href: "#projects" },
   { label: "About", href: "#about" },
   { label: "Skills", href: "#skills" },
+  { label: "Work", href: "#projects" },
   { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
 ];
@@ -44,16 +44,12 @@ export const about = {
 
 export const stats = [
   {
-    value: "2+",
+    value: "4+",
     label: "Production deployments",
   },
   {
     value: "500+",
     label: "Students supported",
-  },
-  {
-    value: "7.98",
-    label: "CGPA (PVPSIT)",
   },
 ];
 

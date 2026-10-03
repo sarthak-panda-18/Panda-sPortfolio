@@ -40,10 +40,10 @@ export const surfaceMaterial = new THREE.MeshStandardMaterial({
 
 export function updateMaterialsTheme(isDark) {
   if (isDark) {
-    clayMaterial.color.set('#D97754');
-    forestMaterial.color.set('#4B6454');
-    sandMaterial.color.set('#EDE6DA');
-    surfaceMaterial.color.set('#242F28');
+    clayMaterial.color.set('#E88058');
+    forestMaterial.color.set('#35453B');
+    sandMaterial.color.set('#D8CEBE');
+    surfaceMaterial.color.set('#1C2520');
   } else {
     clayMaterial.color.set(PALETTE.clay);
     forestMaterial.color.set(PALETTE.forest);

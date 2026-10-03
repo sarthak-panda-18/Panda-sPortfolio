@@ -14,13 +14,13 @@
   }
 
   .dark, [data-theme="dark"] {
-    --color-sand: 18 23 20; /* #121714 Deep dark earth */
-    --color-surface: 27 34 30; /* #1B221E Elevated card surface */
-    --color-forest: 237 230 218; /* #EDE6DA Warm cream headings and text */
-    --color-forest-muted: 158 172 161; /* #9EACA1 Soft sage-cream secondary text */
-    --color-clay: 217 119 84; /* #D97754 Luminous warm terracotta */
-    --color-clay-contrast: 255 255 255; /* #FFFFFF */
-    --color-hairline: 43 54 48; /* #2B3630 Subtle dark border */
+    --color-sand: 14 18 16; /* #0E1210 Deep obsidian earth */
+    --color-surface: 23 30 26; /* #171E1A Elevated modern card surface */
+    --color-forest: 245 241 234; /* #F5F1EA High-clarity warm cream headings & text */
+    --color-forest-muted: 168 180 173; /* #A8B4AD Readable soft sage-grey */
+    --color-clay: 232 128 88; /* #E88058 Vibrant luminous terracotta */
+    --color-clay-contrast: 14 18 16; /* #0E1210 Deep dark text on buttons */
+    --color-hairline: 42 54 48; /* #2A3630 Defined borders */
   }
 
   html {
@@ -132,6 +132,14 @@ html.lenis, html.lenis body {
       padding-top: 96px;
       padding-bottom: 96px;
     }
+  }
+
+  .dark .bg-surface {
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .dark input, .dark textarea {
+    background-color: rgba(14, 18, 16, 0.7);
   }
 }
 

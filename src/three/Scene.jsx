@@ -74,12 +74,12 @@ function SceneContent({ isReady, isMobile, isLowPower, prefersReducedMotion, isD
     <>
       {/* Matte Studio Lighting */}
       <ambientLight
-        color={isDark ? '#4B5A50' : LIGHTING.ambientColor}
-        intensity={isDark ? 0.95 : LIGHTING.ambientIntensity}
+        color={isDark ? '#3A483E' : LIGHTING.ambientColor}
+        intensity={isDark ? 1.25 : LIGHTING.ambientIntensity}
       />
       <directionalLight
-        color={isDark ? '#FFEEDB' : LIGHTING.directionalColor}
-        intensity={isDark ? 1.2 : LIGHTING.directionalIntensity}
+        color={isDark ? '#FFF4E8' : LIGHTING.directionalColor}
+        intensity={isDark ? 1.45 : LIGHTING.directionalIntensity}
         position={LIGHTING.directionalPosition}
       />
 

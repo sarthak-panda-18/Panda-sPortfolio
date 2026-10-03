@@ -13,7 +13,7 @@ import { useScrollProgress } from '../hooks/useScrollProgress';
  * Navbar component featuring scroll-direction awareness (hide on scroll down, show on scroll up),
  * active section scroll spy, full-screen mobile menu overlay, and light/dark theme toggle.
  */
-export function Navbar({ isReady = true }) {
+export function Navbar({ isReady = true, onOpenPreloader }) {
   const { prefersReducedMotion } = useReducedMotion();
   const { scrollTo, stop, start } = useLenis();
   const sectionIds = nav.map((item) => item.href.replace('#', ''));
@@ -76,6 +76,16 @@ export function Navbar({ isReady = true }) {
     scrollTo(href);
   };
 
+  const handleBrandClick = (e) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    if (onOpenPreloader) {
+      onOpenPreloader();
+    } else {
+      scrollTo('#hero');
+    }
+  };
+
   const navItemsExceptContact = nav.slice(0, nav.length - 1);
   const contactItem = nav[nav.length - 1];
 
@@ -92,15 +102,19 @@ export function Navbar({ isReady = true }) {
         }`}
       >
         <div className="max-w-content mx-auto px-6 h-20 flex items-center justify-between">
-          {/* Logo / Name */}
-          <a
-            href="#hero"
-            onClick={(e) => handleNavLinkClick(e, '#hero')}
-            className="group flex flex-col font-serif text-2xl sm:text-3xl text-forest hover:text-clay transition-colors duration-fast focus-visible:outline-none"
-            aria-label={`${profile.name} - Back to top`}
+          {/* Logo / Name - Click to reopen preloader */}
+          <button
+            type="button"
+            onClick={handleBrandClick}
+            className="group flex items-center gap-2 font-serif text-2xl sm:text-3xl text-forest hover:text-clay transition-colors duration-fast focus-visible:outline-none cursor-pointer bg-transparent border-0 p-0 text-left"
+            aria-label={`${profile.name} - Open intro cover`}
+            title="Click to view opening screen"
           >
             <span>{profile.name}</span>
-          </a>
+            <span className="text-[10px] uppercase font-sans tracking-widest text-clay font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-fast hidden lg:inline">
+              ✦ Intro
+            </span>
+          </button>
 
           {/* Desktop Navigation Links & Controls */}
           <div className="hidden md:flex items-center space-x-6">

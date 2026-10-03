@@ -51,7 +51,7 @@ export function About() {
               </p>
               <p className="text-forest-muted text-sm sm:text-base leading-relaxed">
                 Currently pursuing my B.Tech in Computer Science and Engineering at{' '}
-                <strong className="text-forest font-medium">Prasad V. Potluri Siddhartha Institute of Technology</strong> (2024–Present, CGPA 7.98). I enjoy the entire lifecycle of software engineering—from whiteboard architecture to responsive UI interactions.
+                <strong className="text-forest font-medium">Prasad V. Potluri Siddhartha Institute of Technology</strong> (2024–Present). I enjoy the entire lifecycle of software engineering—from whiteboard architecture to responsive UI interactions.
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export function About() {
         </div>
 
         {/* High-Impact Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {stats.map((stat) => (
             <div
               key={stat.label}

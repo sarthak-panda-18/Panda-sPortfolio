@@ -15,7 +15,7 @@ import { Contact } from './sections/Contact';
 const Scene = lazy(() => import('./three/Scene'));
 
 export default function App() {
-  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
   const [shouldMount3D, setShouldMount3D] = useState(false);
 
   // Mount 3D Canvas only after initial DOM paint via requestIdleCallback or short timer
@@ -35,8 +35,11 @@ export default function App() {
   return (
     <ThemeProvider>
       <LenisProvider>
-        {/* 1. Session-based Preloader Curtain */}
-        <Preloader onComplete={() => setIsPreloaderComplete(true)} />
+        {/* 1. Creative Landing / Preloader Curtain */}
+        <Preloader
+          isOpen={showPreloader}
+          onClose={() => setShowPreloader(false)}
+        />
 
         {/* 2. Persistent 3D Canvas Background Layer (Transparent, Pointer-events-none) */}
         <div
@@ -46,17 +49,20 @@ export default function App() {
         >
           {shouldMount3D && (
             <Suspense fallback={null}>
-              <Scene isReady={isPreloaderComplete} />
+              <Scene isReady={!showPreloader} />
             </Suspense>
           )}
         </div>
 
         {/* 3. Main Foreground Content Layer */}
         <div className="relative z-10 flex flex-col min-h-screen bg-transparent text-forest">
-          <Navbar isReady={isPreloaderComplete} />
+          <Navbar
+            isReady={!showPreloader}
+            onOpenPreloader={() => setShowPreloader(true)}
+          />
 
           <main className="flex-grow">
-            <Hero isReady={isPreloaderComplete} />
+            <Hero isReady={!showPreloader} />
             <About />
             <Skills />
             <Projects />
