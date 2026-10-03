@@ -78,6 +78,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
 
   const handleBrandClick = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsMobileMenuOpen(false);
     if (onOpenPreloader) {
       onOpenPreloader();

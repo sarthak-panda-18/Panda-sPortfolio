@@ -1,30 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EASE, DURATION, maskLine, fadeUp, fade } from '../lib/motion';
+import { EASE, DURATION, maskLine, fadeUp } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useLenis } from '../hooks/useLenis';
 import {
   ArrowRight,
   Sparkles,
-  Terminal,
   Compass,
   Code2,
-  Cpu,
   GraduationCap,
   FolderGit2,
   Mail,
-  Layers,
-  CheckCircle2,
 } from 'lucide-react';
 
 /**
- * Creative Interactive Landing & Preloader Experience.
+ * Creative Interactive Landing & Preloader Screen.
  * Features:
- * 1. Interactive ambient particle constellation responding to cursor physics
- * 2. Live IST dynamic clock & location indicator
- * 3. Interactive Terminal HUD with live system status
- * 4. 4 Interactive Quick-Jump Discovery Tiles (direct section shortcuts)
- * 5. Keyboard triggers [Space / Enter] and magnetic Enter CTA
+ * 1. 100% Theme-agnostic explicit contrast palette (always crystal-clear in Light and Dark modes)
+ * 2. Fluid clamp() scaling for 100% zoom perfection across Chrome, Brave, Firefox, and Edge
+ * 3. Interactive particle constellation canvas with cursor repulsion
+ * 4. Interactive Terminal HUD and 4 quick-jump discovery tiles
  */
 export function Preloader({ isOpen = true, onClose }) {
   const { prefersReducedMotion } = useReducedMotion();
@@ -41,6 +36,8 @@ export function Preloader({ isOpen = true, onClose }) {
     'Data Structures & Algorithmic Problem Solving',
     'Scalable Cloud Deployments & Database Design',
   ];
+
+  const openTimeRef = useRef(0);
 
   // Dynamic live clock (India Standard Time)
   useEffect(() => {
@@ -69,22 +66,65 @@ export function Preloader({ isOpen = true, onClose }) {
     return () => clearInterval(interval);
   }, [specialties.length]);
 
-  const handleDismiss = (targetSection = null) => {
+  // Track timestamp when opened to ignore instant accidental click triggers from navbar
+  useEffect(() => {
+    if (isOpen) {
+      openTimeRef.current = Date.now();
+    }
+  }, [isOpen]);
+
+  const handleDismiss = (targetSection = null, force = false) => {
+    // Prevent accidental dismissal if opened in the last 260ms (e.g. from navbar click)
+    if (!force && Date.now() - openTimeRef.current < 260) {
+      return;
+    }
+
     if (onClose) onClose();
     start();
     if (targetSection) {
       setTimeout(() => {
         scrollTo(targetSection);
-      }, 400);
+      }, 350);
     }
   };
+
+  // Global click / tap listener: Clicking anywhere on screen skips preloader (after cooldown)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Small delay prevents instant trigger from the same click that opened the preloader
+    const timer = setTimeout(() => {
+      const handleGlobalClick = (e) => {
+        if (Date.now() - openTimeRef.current < 260) return;
+
+        // If clicking a specific quick tile, handle dismissal to that section
+        const quickTile = e.target.closest('[data-quick-tile]');
+        if (quickTile) {
+          const target = quickTile.getAttribute('data-quick-tile');
+          handleDismiss(target, true);
+        } else {
+          handleDismiss(null, true);
+        }
+      };
+
+      window.addEventListener('click', handleGlobalClick);
+      window.addEventListener('touchend', handleGlobalClick);
+
+      return () => {
+        window.removeEventListener('click', handleGlobalClick);
+        window.removeEventListener('touchend', handleGlobalClick);
+      };
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
   // Keyboard shortcut listener: Press Space or Enter to enter portfolio
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isOpen && (e.code === 'Space' || e.code === 'Enter')) {
         e.preventDefault();
-        handleDismiss();
+        handleDismiss(null, true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -100,7 +140,6 @@ export function Preloader({ isOpen = true, onClose }) {
     }
   }, [isOpen, stop, start]);
 
-  // Track mouse for ambient light aura & particle interaction
   const handleContainerMouseMove = (e) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
@@ -130,23 +169,21 @@ export function Preloader({ isOpen = true, onClose }) {
     };
     window.addEventListener('mousemove', handleCanvasMouseMove);
 
-    // Particle nodes in warm earth palette
-    const particleCount = Math.min(width > 768 ? 48 : 24, 55);
-    const colors = ['rgba(194, 106, 74, 0.55)', 'rgba(237, 230, 218, 0.4)', 'rgba(120, 144, 128, 0.35)'];
+    const particleCount = Math.min(width > 768 ? 42 : 20, 48);
+    const colors = ['rgba(232, 128, 88, 0.6)', 'rgba(245, 241, 234, 0.45)', 'rgba(140, 160, 148, 0.35)'];
 
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      radius: Math.random() * 2 + 1.2,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 1.8 + 1.2,
       color: colors[Math.floor(Math.random() * colors.length)],
     }));
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw and connect particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
@@ -160,10 +197,10 @@ export function Preloader({ isOpen = true, onClose }) {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 140) {
-            const force = (140 - dist) / 140;
-            p.x -= (dx / dist) * force * 2.5;
-            p.y -= (dy / dist) * force * 2.5;
+          if (dist < 130) {
+            const force = (130 - dist) / 130;
+            p.x -= (dx / dist) * force * 2.2;
+            p.y -= (dy / dist) * force * 2.2;
           }
         }
 
@@ -175,11 +212,11 @@ export function Preloader({ isOpen = true, onClose }) {
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 150) {
+          if (dist < 135) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(237, 230, 218, ${0.14 * (1 - dist / 150)})`;
+            ctx.strokeStyle = `rgba(245, 241, 234, ${0.14 * (1 - dist / 135)})`;
             ctx.lineWidth = 0.75;
             ctx.stroke();
           }
@@ -241,17 +278,22 @@ export function Preloader({ isOpen = true, onClose }) {
           initial={{ y: '0%' }}
           exit={{ y: '-100%' }}
           transition={{
-            duration: 0.8,
+            duration: 0.75,
             ease: [0.76, 0, 0.24, 1],
           }}
+          onClick={(e) => {
+            if (Date.now() - openTimeRef.current < 260) return;
+            if (e.target.closest('[data-quick-tile]')) return;
+            handleDismiss();
+          }}
           onMouseMove={handleContainerMouseMove}
-          className="fixed inset-0 z-50 flex flex-col justify-between bg-[#1b251f] p-6 sm:p-10 md:p-14 select-none overflow-y-auto overflow-x-hidden text-sand"
+          className="fixed inset-0 z-50 flex flex-col justify-between bg-[#141c17] p-4 sm:p-6 md:p-8 lg:p-10 select-none overflow-y-auto overflow-x-hidden text-[#f5f1ea] cursor-pointer"
         >
           {/* 1. Ambient Background Light Aura & Constellation Canvas */}
           <div
-            className="absolute inset-0 z-0 pointer-events-none opacity-40 transition-opacity duration-300"
+            className="absolute inset-0 z-0 pointer-events-none opacity-45 transition-opacity duration-300"
             style={{
-              background: `radial-gradient(700px at ${mousePos.x}px ${mousePos.y}px, rgba(194, 106, 74, 0.18), transparent 75%)`,
+              background: `radial-gradient(650px at ${mousePos.x}px ${mousePos.y}px, rgba(232, 128, 88, 0.16), transparent 75%)`,
             }}
           />
           <canvas
@@ -259,192 +301,211 @@ export function Preloader({ isOpen = true, onClose }) {
             className="absolute inset-0 z-0 pointer-events-none opacity-90"
           />
 
-          {/* 2. Top Navigation & System Status HUD */}
-          <div className="relative z-10 flex items-center justify-between border-b border-sand/10 pb-4">
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#c26a4a] animate-ping" />
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                <span className="font-serif text-lg sm:text-xl text-[#ede6da] tracking-tight">
-                  Sarthak Panda
-                </span>
-                <span className="hidden sm:inline text-sand/30">•</span>
-                <span className="label text-[#c26a4a] text-[10px] tracking-widest font-sans">
-                  Undergraduate Software Engineer
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs font-mono">
-              <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sand/5 border border-sand/10 text-sand/70 text-[11px]">
-                <Compass size={12} className="text-[#c26a4a]" />
-                Andhra Pradesh, India
-              </span>
-              <span className="px-3 py-1 rounded-full bg-sand/10 border border-sand/20 text-[#ede6da] font-medium text-[11px]">
-                {currentTime || 'IST'}
-              </span>
-            </div>
-          </div>
-
-          {/* 3. Main Center Stage: Typography & Interactive Discovery Deck */}
-          <div className="relative z-10 my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left Column: Bold Typography & Rotating Specialization */}
-            <div className="lg:col-span-7 flex flex-col space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sand/5 border border-sand/15 text-xs text-[#f4a261] w-fit">
-                <Sparkles size={13} className="text-[#c26a4a]" />
-                <span className="font-sans font-medium tracking-wide">
-                  Welcome to my portfolio space
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <div className="overflow-hidden">
-                  <motion.h1
-                    variants={maskLine}
-                    initial="hidden"
-                    animate="visible"
-                    className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[7.25rem] text-[#ede6da] tracking-tight leading-[0.92]"
-                  >
-                    Sarthak
-                  </motion.h1>
+          {/* Max-Width Inner Responsive Wrapper */}
+          <div className="relative z-10 max-w-6xl mx-auto w-full h-full flex flex-col justify-between py-1">
+            {/* 2. Top Header Metadata Bar */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
+              <div className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-[#e88058] animate-ping" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <span className="font-serif text-base sm:text-lg text-[#f5f1ea] tracking-tight">
+                    Sarthak Panda
+                  </span>
+                  <span className="hidden sm:inline text-white/30">•</span>
+                  <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-sans font-medium text-[#e88058]">
+                    Undergraduate Software Engineer
+                  </span>
                 </div>
-                <div className="overflow-hidden">
-                  <motion.h1
-                    variants={maskLine}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{
-                      duration: DURATION.reveal,
-                      ease: EASE,
-                      delay: 0.1,
+              </div>
+
+              <div className="flex items-center gap-3 text-xs font-mono">
+                <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a8b4ad] text-[11px]">
+                  <Compass size={12} className="text-[#e88058]" />
+                  Andhra Pradesh, India
+                </span>
+                <span className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/15 text-[#f5f1ea] font-medium text-[11px]">
+                  {currentTime || 'IST'}
+                </span>
+              </div>
+            </div>
+
+            {/* 3. Main Center Stage: Responsive Dual Column Layout */}
+            <div className="my-auto py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+              {/* Left Column: Bold Typography & Rotating Specialization */}
+              <div className="lg:col-span-7 flex flex-col space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/15 text-xs text-[#f4a261] w-fit">
+                  <Sparkles size={13} className="text-[#e88058]" />
+                  <span className="font-sans font-medium tracking-wide">
+                    Welcome to my portfolio space
+                  </span>
+                </div>
+
+                <div className="space-y-0.5 sm:space-y-1">
+                  <div className="overflow-hidden">
+                    <motion.h1
+                      variants={maskLine}
+                      initial="hidden"
+                      animate="visible"
+                      className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3.5rem,5vw,5.5rem)] text-[#f5f1ea] tracking-tight leading-[0.92]"
+                    >
+                      Sarthak
+                    </motion.h1>
+                  </div>
+                  <div className="overflow-hidden">
+                    <motion.h1
+                      variants={maskLine}
+                      initial="hidden"
+                      animate="visible"
+                      transition={{
+                        duration: DURATION.reveal,
+                        ease: EASE,
+                        delay: 0.1,
+                      }}
+                      className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3.5rem,5vw,5.5rem)] text-[#f5f1ea] tracking-tight leading-[0.92]"
+                    >
+                      Panda
+                    </motion.h1>
+                  </div>
+                </div>
+
+                {/* Dynamic Specialization Reveal */}
+                <div className="pt-1 flex items-center gap-2 text-sm sm:text-base min-h-[1.75rem]">
+                  <span className="text-[#e88058] shrink-0">✦</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={activeSpecialtyIndex}
+                      initial={{ y: 6, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -6, opacity: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="font-serif italic text-[#f4a261] text-base sm:text-lg font-normal"
+                    >
+                      {specialties[activeSpecialtyIndex]}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+
+                <p className="text-xs sm:text-sm text-[#a8b4ad] max-w-lg leading-relaxed pt-0.5">
+                  Passionate about building reliable full-stack applications with clean
+                  architecture, interactive frontend performance, and scalable databases.
+                </p>
+
+                {/* Enter CTA and Keyboard Cue */}
+                <div className="pt-3 flex flex-wrap items-center gap-3 sm:gap-4">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDismiss();
                     }}
-                    className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[7.25rem] text-[#ede6da] tracking-tight leading-[0.92]"
+                    className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-pill bg-[#e88058] text-[#141c17] font-semibold text-xs sm:text-sm shadow-xl hover:bg-[#f5f1ea] hover:text-[#141c17] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
                   >
-                    Panda
-                  </motion.h1>
+                    <span>Explore Full Portfolio</span>
+                    <ArrowRight
+                      size={16}
+                      className="group-hover:translate-x-1 transition-transform duration-300"
+                    />
+                  </button>
+
+                  <span className="text-[11px] text-[#a8b4ad]/70 tracking-wider">
+                    Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] text-[#f5f1ea] font-mono">Space</kbd> or click anywhere
+                  </span>
                 </div>
               </div>
 
-              {/* Dynamic Specialization Reveal */}
-              <div className="pt-2 flex items-center gap-2 text-sm sm:text-base">
-                <span className="text-[#c26a4a] shrink-0">✦</span>
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={activeSpecialtyIndex}
-                    initial={{ y: 8, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -8, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="font-serif italic text-[#f4a261] text-lg sm:text-xl font-normal"
-                  >
-                    {specialties[activeSpecialtyIndex]}
-                  </motion.span>
-                </AnimatePresence>
+              {/* Right Column: Interactive System Terminal & Quick Discovery Tiles */}
+              <div className="lg:col-span-5 flex flex-col space-y-3">
+                {/* Terminal HUD Card */}
+                <div className="rounded-card border border-white/15 bg-black/45 backdrop-blur-md p-3.5 sm:p-4 shadow-2xl">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-white/10 text-xs text-[#a8b4ad]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                      <span className="ml-2 font-mono text-[11px] text-[#f5f1ea]/80">sarthak_sys.sh</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-400 font-medium">● ACTIVE</span>
+                  </div>
+
+                  <div className="font-mono text-[11px] sm:text-xs text-[#d8cebe] space-y-1.5 pt-2.5 leading-relaxed">
+                    <p className="text-[#f4a261]">
+                      &gt; init_profile({'{'} status: &quot;Ready&quot;, role: &quot;SDE&quot; {'}'})
+                    </p>
+                    <p className="text-[#f5f1ea]/85">
+                      → Focus: Full-Stack SaaS &amp; Algorithmic Engineering
+                    </p>
+                    <p className="text-[#f5f1ea]/85">
+                      → Impact: 500+ active student users supported
+                    </p>
+                    <p className="text-[#a8b4ad] text-[10.5px]">
+                      → Stack: React • Node.js • PostgreSQL • Three.js • Python
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Jump Discovery Tiles Grid */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  {quickTiles.map((tile) => {
+                    const Icon = tile.icon;
+                    return (
+                      <button
+                        key={tile.id}
+                        type="button"
+                        data-quick-tile={tile.target}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDismiss(tile.target);
+                        }}
+                        className="group p-3 sm:p-3.5 rounded-card border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#e88058]/60 backdrop-blur-sm transition-all duration-fast text-left flex flex-col justify-between cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="p-1.5 rounded-md bg-white/[0.08] text-[#e88058] group-hover:bg-[#e88058] group-hover:text-[#141c17] transition-colors duration-fast">
+                            <Icon size={14} strokeWidth={2} />
+                          </span>
+                          <span className="text-[9.5px] font-mono text-[#f4a261] px-1.5 py-0.5 rounded-full bg-white/[0.08]">
+                            {tile.tag}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="font-sans font-medium text-xs text-[#f5f1ea] group-hover:text-[#f4a261] transition-colors duration-fast">
+                            {tile.label}
+                          </h4>
+                          <p className="text-[10.5px] text-[#a8b4ad] leading-tight mt-0.5 line-clamp-1">
+                            {tile.desc}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Bottom Footer Metadata Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-[#a8b4ad] border-t border-white/10 pt-3 sm:pt-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#e88058]" />
+                <span className="text-[11px] sm:text-xs">Full-Stack &amp; Software Engineering Portfolio</span>
               </div>
 
-              <p className="text-sm sm:text-base text-sand/70 max-w-lg leading-relaxed pt-1">
-                Passionate about building reliable full-stack applications with clean
-                architecture, interactive frontend performance, and scalable databases.
-              </p>
-
-              {/* Enter CTA and Keyboard Cue */}
-              <div className="pt-4 flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-3 text-[11px] sm:text-xs">
+                <span className="inline-flex items-center gap-1.5 text-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Open for Summer / Fall Internships
+                </span>
+                <span className="text-white/30 hidden md:inline">•</span>
                 <button
                   type="button"
-                  onClick={() => handleDismiss()}
-                  className="group inline-flex items-center gap-3 px-8 py-4 rounded-pill bg-[#c26a4a] text-[#fbf5ea] font-medium text-sm sm:text-base shadow-xl hover:bg-[#ede6da] hover:text-[#1f2a23] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDismiss();
+                  }}
+                  className="hidden md:inline text-white/50 hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-[11px] sm:text-xs"
                 >
-                  <span>Explore Full Portfolio</span>
-                  <ArrowRight
-                    size={18}
-                    className="group-hover:translate-x-1.5 transition-transform duration-300"
-                  />
+                  Click anywhere to skip
                 </button>
-
-                <span className="text-xs text-sand/50 tracking-wider">
-                  Press <kbd className="px-2 py-0.5 rounded bg-sand/10 border border-sand/20 text-[10px] text-sand font-mono">Space</kbd> or click anywhere
-                </span>
               </div>
-            </div>
-
-            {/* Right Column: Interactive System Terminal & Quick Discovery Tiles */}
-            <div className="lg:col-span-5 flex flex-col space-y-4">
-              {/* Terminal HUD Card */}
-              <div className="rounded-card border border-sand/15 bg-black/35 backdrop-blur-md p-5 shadow-2xl">
-                <div className="flex items-center justify-between pb-3 border-b border-sand/10 text-xs text-sand/60">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                    <span className="ml-2 font-mono text-[11px] text-sand/70">sarthak_sys.sh</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-400/90">● ACTIVE</span>
-                </div>
-
-                <div className="font-mono text-xs text-sand/80 space-y-1.5 pt-3 leading-relaxed">
-                  <p className="text-[#f4a261]">
-                    &gt; init_profile({'{'} status: &quot;Ready&quot;, role: &quot;SDE&quot; {'}'})
-                  </p>
-                  <p className="text-sand/70">
-                    → Focus: Full-Stack SaaS &amp; Algorithmic Engineering
-                  </p>
-                  <p className="text-sand/70">
-                    → Impact: 500+ active student users supported
-                  </p>
-                  <p className="text-sand/50 text-[11px]">
-                    → Stack: React • Node.js • PostgreSQL • Three.js • Python
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick Jump Discovery Tiles Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {quickTiles.map((tile) => {
-                  const Icon = tile.icon;
-                  return (
-                    <button
-                      key={tile.id}
-                      type="button"
-                      onClick={() => handleDismiss(tile.target)}
-                      className="group p-4 rounded-card border border-sand/15 bg-sand/5 hover:bg-sand/15 hover:border-[#c26a4a]/60 backdrop-blur-sm transition-all duration-fast text-left flex flex-col justify-between cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="p-2 rounded-lg bg-sand/10 text-[#c26a4a] group-hover:bg-[#c26a4a] group-hover:text-sand transition-colors duration-fast">
-                          <Icon size={16} strokeWidth={1.75} />
-                        </span>
-                        <span className="text-[10px] font-mono text-[#f4a261] px-2 py-0.5 rounded-full bg-sand/10">
-                          {tile.tag}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h4 className="font-sans font-medium text-xs text-[#ede6da] group-hover:text-[#f4a261] transition-colors duration-fast">
-                          {tile.label}
-                        </h4>
-                        <p className="text-[11px] text-sand/60 leading-tight mt-0.5 line-clamp-1">
-                          {tile.desc}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* 4. Bottom Footer Metadata Bar */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-sand/60 border-t border-sand/10 pt-4">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c26a4a]" />
-              <span>Full-Stack &amp; Software Engineering Portfolio</span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="inline-flex items-center gap-1.5 text-emerald-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Open for Summer / Fall Internships
-              </span>
-              <span className="text-sand/40 hidden md:inline">•</span>
-              <span className="hidden md:inline text-sand/50">Click anywhere to skip</span>
             </div>
           </div>
         </motion.div>
