@@ -179,7 +179,7 @@ export const projects = [
       "REST API",
       "Vercel",
     ],
-    liveUrl: "https://movie-desk-indol.vercel.app/",
+    liveUrl: "https://moviedeskv1.vercel.app/",
     liveActionText: "Visit Live Website",
     githubUrl: "https://github.com/sarthak-panda-18/MovieDesk",
     image: "",
