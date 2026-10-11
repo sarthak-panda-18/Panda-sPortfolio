@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, Linkedin, Code2, Terminal, Award } from 'lucide-react';
+import {
+  Github,
+  Linkedin,
+  Code2,
+  Terminal,
+  Award,
+} from 'lucide-react';
 import { profile, hero, social, contact } from '../data/content';
 import { Button } from '../components/Button';
 import {
@@ -18,6 +24,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
  * Hero Section Component.
  * Features masked name reveal, rotating tagline, dual CTA buttons,
  * dynamic social icon links, animated scroll cue, and scroll-linked fadeout.
+ * The right side is cleanly open for the interactive 3D WebGL floating shapes.
  */
 export function Hero({ isReady = true }) {
   const { prefersReducedMotion } = useReducedMotion();
@@ -62,7 +69,7 @@ export function Hero({ isReady = true }) {
       if (!textColumnRef.current) return;
       const scrollY = window.scrollY;
       const fadeDistance = window.innerHeight * 0.75;
-      
+
       // At scrollY = 0, opacity is 1.0 (100% full rich forest contrast)
       const fraction = Math.min(1, Math.max(0, scrollY / fadeDistance));
       const opacity = Math.max(0, 1 - fraction * 1.3);
@@ -98,7 +105,7 @@ export function Hero({ isReady = true }) {
       className="section min-h-[100svh] flex flex-col justify-center relative pt-28 md:pt-32 pb-16 bg-transparent"
     >
       <div className="max-w-content mx-auto px-6 w-full flex-grow flex flex-col justify-center">
-        {/* Left-aligned text container (Desktop: ~54% width to ensure zero overlap with right 3D cluster) */}
+        {/* Left-aligned text container (Desktop: ~58% width to ensure zero overlap with right 3D cluster) */}
         <div
           ref={textColumnRef}
           style={{ opacity: 1 }}
@@ -199,11 +206,11 @@ export function Hero({ isReady = true }) {
               </Button>
             </motion.div>
 
-            {/* 6. Social Links Row (Rendered only if links are configured) */}
+            {/* 6. Social Links Row (Including LinkedIn) */}
             {socialEntries.length > 0 && (
               <motion.div
                 variants={activeFadeVariant}
-                className="flex items-center space-x-3 pt-2"
+                className="flex items-center space-x-3 pt-1"
                 aria-label="Social and coding profiles"
               >
                 {socialEntries.map((item) => {
@@ -215,7 +222,7 @@ export function Hero({ isReady = true }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${profile.name} on ${item.label}`}
-                      className="p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-forest transition-colors duration-fast focus-visible:outline-none"
+                      className="p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-clay/60 hover:shadow-sm transition-all duration-fast focus-visible:outline-none"
                     >
                       <Icon size={18} strokeWidth={1.5} />
                     </a>
@@ -229,3 +236,6 @@ export function Hero({ isReady = true }) {
     </section>
   );
 }
+
+
+

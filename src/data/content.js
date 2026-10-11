@@ -23,7 +23,7 @@ export const hero = {
 
 export const social = {
   github: "https://github.com/sarthak-panda-18",
-  linkedin: "", // TODO: Add LinkedIn profile URL
+  linkedin: "https://www.linkedin.com/in/sarthak-panda-20267b378/",
   leetcode: "https://leetcode.com/u/sarthak-pandaa/",
   codechef: "https://www.codechef.com/users/sarthakpanda17",
   hackerrank: "",
