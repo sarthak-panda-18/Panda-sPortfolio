@@ -44,7 +44,7 @@ export const about = {
 
 export const stats = [
   {
-    value: "4+",
+    value: "6+",
     label: "Production deployments",
   },
   {
@@ -182,6 +182,54 @@ export const projects = [
     liveUrl: "https://moviedeskv1.vercel.app/",
     liveActionText: "Visit Live Website",
     githubUrl: "https://github.com/sarthak-panda-18/MovieDesk",
+    image: "",
+  },
+  {
+    id: "green-earth-foundation",
+    title: "Green Earth Foundation",
+    tag: "Environmental NGO Web Application",
+    summary:
+      "A modern, responsive web application for Green Earth Foundation, an environmental non-profit organization dedicated to native reforestation, coastal cleanup campaigns, and community eco-literacy workshops. Features an interactive donation flow, volunteer registration, and event showcases.",
+    highlights: [
+      "Built responsive glassmorphism navigation with smooth-scroll and animated mobile drawer",
+      "Engineered interactive initiative showcases covering reforestation, marine protection, and eco-literacy",
+      "Designed dynamic donation calculator and multi-step volunteer recruitment flow",
+      "Optimized lightweight vanilla web architecture with zero external runtime dependencies",
+    ],
+    stack: [
+      "JavaScript",
+      "HTML5",
+      "CSS3",
+      "Responsive Design",
+      "Vercel",
+    ],
+    liveUrl: "https://greenearthfoundation.vercel.app/",
+    liveActionText: "Visit Live Website",
+    githubUrl: "https://github.com/sarthak-panda-18/GreenEarthFoundation",
+    image: "",
+  },
+  {
+    id: "sakthi-dental-clinic",
+    title: "Sakthi Dental Clinic",
+    tag: "Healthcare Clinic Web Platform",
+    summary:
+      "A high-performance, fully responsive, and accessible modern front-end web platform for Sakthi Dental Clinic. Features interactive treatment catalogs, appointment booking modals with input validation, doctor profiles, patient testimonials, and emergency dental care support.",
+    highlights: [
+      "Engineered accessible, high-performance UI using semantic HTML5, modern CSS, and vanilla JavaScript",
+      "Implemented appointment booking modal with dynamic date/time validation and instant confirmation",
+      "Crafted custom 'Rose Smile' design system with WCAG AA compliant contrast and fluid micro-interactions",
+      "Designed comprehensive treatment catalog, interactive patient testimonials, and emergency direct-call routing",
+    ],
+    stack: [
+      "JavaScript",
+      "HTML5",
+      "CSS3",
+      "UI/UX Design",
+      "Vercel",
+    ],
+    liveUrl: "https://sakthidentalclinicv2.vercel.app/",
+    liveActionText: "Visit Live Website",
+    githubUrl: "https://github.com/sarthak-panda-18/SakthiDentalClinic",
     image: "",
   },
 ];
