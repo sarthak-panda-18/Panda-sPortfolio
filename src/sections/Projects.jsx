@@ -1,7 +1,7 @@
 import React from 'react';
 import { projects } from '../data/content';
 import { TiltCard } from '../components/TiltCard';
-import { Github, CheckCircle2, ArrowUpRight, Globe, Sparkles } from 'lucide-react';
+import { Github, CheckCircle2, ArrowUpRight, Globe } from 'lucide-react';
 
 export function Projects() {
   return (
@@ -27,6 +27,7 @@ export function Projects() {
           {projects.map((project) => {
             const hasGithub = Boolean(project.githubUrl && project.githubUrl.trim().length > 0);
             const liveUrl = project.liveUrl;
+            const primaryUrl = liveUrl || (hasGithub ? project.githubUrl : '');
             const isLiveDeployment = Boolean(liveUrl && !liveUrl.includes('github.com'));
             const actionText = project.liveActionText || (isLiveDeployment ? 'Visit Live Website' : 'Explore Repository');
 
@@ -41,15 +42,19 @@ export function Projects() {
                     <div>
                       <span className="label text-clay block mb-1.5">{project.tag}</span>
                       <h3 className="font-serif text-2xl sm:text-3xl text-forest">
-                        <a
-                          href={liveUrl || project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-clay transition-colors duration-fast inline-flex items-center gap-2 group-hover:text-clay"
-                        >
+                        {primaryUrl ? (
+                          <a
+                            href={primaryUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-clay transition-colors duration-fast inline-flex items-center gap-2 group-hover:text-clay"
+                          >
+                            <span>{project.title}</span>
+                            <ArrowUpRight size={20} strokeWidth={1.5} className="opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0" />
+                          </a>
+                        ) : (
                           <span>{project.title}</span>
-                          <ArrowUpRight size={20} strokeWidth={1.5} className="opacity-0 group-hover:opacity-100 transition-opacity duration-fast shrink-0" />
-                        </a>
+                        )}
                       </h3>
                     </div>
 

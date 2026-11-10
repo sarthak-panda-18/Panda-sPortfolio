@@ -123,9 +123,12 @@ export function HeroCluster({ isReady, isMobile, isLowPower, prefersReducedMotio
   const entranceProgressRef = useRef(prefersReducedMotion ? 1 : 0);
   const explodeOffsets = useRef([]);
 
-  const items = isMobile || isLowPower ? MOBILE_ITEMS : DESKTOP_ITEMS;
+  const isCompact = isMobile || isLowPower;
+  const items = isCompact ? MOBILE_ITEMS : DESKTOP_ITEMS;
 
   useEffect(() => {
+    itemsRef.current.length = items.length;
+
     // Generate random radial vectors for explosion impulse
     explodeOffsets.current = items.map((_, i) => ({
       x: (Math.random() - 0.3) * 3.5 + 1.0,
@@ -161,7 +164,9 @@ export function HeroCluster({ isReady, isMobile, isLowPower, prefersReducedMotio
     const entrance = entranceProgressRef.current;
 
     // 2. Read scroll store (Zero React re-render)
-    const heroScroll = scrollStore.sectionProgress.hero || 0;
+    // sectionProgress.hero is 0.5 at scrollY = 0 and progresses to 1.0 as Hero scrolls out of view
+    const rawHeroProgress = scrollStore.sectionProgress.hero ?? 0.5;
+    const heroScroll = Math.max(0, Math.min(1, (rawHeroProgress - 0.5) * 2));
 
     // Scroll retreat effect: drift up, slightly back, rotate and scale down
     const scrollLift = heroScroll * 2.8;
@@ -251,7 +256,7 @@ export function HeroCluster({ isReady, isMobile, isLowPower, prefersReducedMotio
     <group ref={groupRef}>
       {items.map((item, index) => (
         <mesh
-          key={index}
+          key={`${isCompact ? 'm' : 'd'}-${index}`}
           ref={(el) => (itemsRef.current[index] = el)}
           geometry={item.geometry}
           material={item.material}

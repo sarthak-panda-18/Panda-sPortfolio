@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { contact, profile, social } from '../data/content';
 import { Button } from '../components/Button';
-import { Mail, Send, CheckCircle2, ArrowUpRight, Github, Linkedin, AlertCircle } from 'lucide-react';
+import { Mail, CheckCircle2, Github, Linkedin, AlertCircle } from 'lucide-react';
 
 export function Contact() {
   const [formData, setFormData] = useState({
@@ -93,14 +93,20 @@ export function Contact() {
         }),
       });
 
-      const result = await response.json();
-      if (result.success) {
+      let result = null;
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (response.ok && result?.success) {
         setIsSubmitted(true);
         setFormData({ name: '', email: '', message: '', botcheck: false });
         setErrors({});
         setTouched({});
       } else {
-        setSubmitError(result.message || 'Unable to send message. Please try again or reach out directly.');
+        setSubmitError(result?.message || 'Unable to send message. Please try again or reach out directly.');
       }
     } catch {
       setSubmitError('Network error. Please check your connection or reach out directly.');

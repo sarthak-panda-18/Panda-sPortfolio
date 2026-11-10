@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Sparkles,
   Layers,
   Orbit,
   Zap,
-  RotateCcw,
-  Eye,
-  Disc,
 } from 'lucide-react';
 import { interactive3DStore } from '../three/interactiveStore';
 
@@ -16,16 +11,21 @@ import { interactive3DStore } from '../three/interactiveStore';
  * visitors to directly manipulate 3D shaders, materials, and Zero-G physics in real time.
  */
 export function Spatial3DStudio() {
-  const [activeMaterial, setActiveMaterial] = useState('ceramic');
-  const [activeMotion, setActiveMotion] = useState('float');
-  const [isExploding, setIsExploding] = useState(false);
+  const [activeMaterial, setActiveMaterial] = useState(interactive3DStore.materialMode);
+  const [activeMotion, setActiveMotion] = useState(interactive3DStore.motionMode);
+  const [isExploding, setIsExploding] = useState(interactive3DStore.motionMode === 'exploded');
+  const explodeTimerRef = useRef(null);
 
   useEffect(() => {
     const unsub = interactive3DStore.subscribe(() => {
       setActiveMaterial(interactive3DStore.materialMode);
       setActiveMotion(interactive3DStore.motionMode);
+      setIsExploding(interactive3DStore.motionMode === 'exploded');
     });
-    return () => unsub();
+    return () => {
+      unsub();
+      if (explodeTimerRef.current) clearTimeout(explodeTimerRef.current);
+    };
   }, []);
 
   const handleMaterialChange = (mode) => {
@@ -40,9 +40,10 @@ export function Spatial3DStudio() {
   };
 
   const handleExplode = () => {
+    if (explodeTimerRef.current) clearTimeout(explodeTimerRef.current);
     setIsExploding(true);
     interactive3DStore.triggerExplode();
-    setTimeout(() => setIsExploding(false), 2400);
+    explodeTimerRef.current = setTimeout(() => setIsExploding(false), 2400);
   };
 
   const materialOptions = [

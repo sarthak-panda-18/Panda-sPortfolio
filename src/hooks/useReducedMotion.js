@@ -1,57 +1,78 @@
 import { useState, useEffect } from 'react';
 
+function detectEnvironment() {
+  if (typeof window === 'undefined') {
+    return {
+      prefersReducedMotion: false,
+      isMobile: false,
+      isLowPower: false,
+    };
+  }
+
+  const prefersReducedMotion = Boolean(
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+  const isTouch =
+    'ontouchstart' in window || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+  const isNarrowViewport = window.innerWidth < 768;
+  const lowCores =
+    typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
+
+  const isMobile = isNarrowViewport || (isTouch && window.innerWidth < 1024);
+  const isLowPower = isMobile || lowCores;
+
+  return { prefersReducedMotion, isMobile, isLowPower };
+}
+
 /**
  * Hook to detect reduced motion preference and device power constraints.
  * Exposes prefersReducedMotion (boolean), isMobile (boolean), and isLowPower (boolean).
  */
 export function useReducedMotion() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLowPower, setIsLowPower] = useState(false);
+  const [env, setEnv] = useState(detectEnvironment);
 
   useEffect(() => {
-    // 1. Prefers-reduced-motion media query listener
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
+    const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
-    const handleMediaChange = (event) => {
-      setPrefersReducedMotion(event.matches);
+    const syncEnvironment = () => {
+      const next = detectEnvironment();
+      setEnv((prev) =>
+        prev.prefersReducedMotion === next.prefersReducedMotion &&
+        prev.isMobile === next.isMobile &&
+        prev.isLowPower === next.isLowPower
+          ? prev
+          : next
+      );
     };
 
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleMediaChange);
-    } else {
-      mediaQuery.addListener(handleMediaChange);
+    syncEnvironment();
+
+    if (mediaQuery) {
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', syncEnvironment);
+      } else if (mediaQuery.addListener) {
+        mediaQuery.addListener(syncEnvironment);
+      }
     }
 
-    // 2. Mobile & Low Power Detection
-    const evaluateDeviceEnvironment = () => {
-      const isTouch = 'ontouchstart' in window || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
-      const isNarrowViewport = window.innerWidth < 768;
-      const lowCores = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
-      
-      const mobileStatus = isNarrowViewport || (isTouch && window.innerWidth < 1024);
-      setIsMobile(mobileStatus);
-      setIsLowPower(mobileStatus || lowCores);
-    };
-
-    evaluateDeviceEnvironment();
-    window.addEventListener('resize', evaluateDeviceEnvironment, { passive: true });
+    window.addEventListener('resize', syncEnvironment, { passive: true });
 
     return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handleMediaChange);
-      } else {
-        mediaQuery.removeListener(handleMediaChange);
+      if (mediaQuery) {
+        if (mediaQuery.removeEventListener) {
+          mediaQuery.removeEventListener('change', syncEnvironment);
+        } else if (mediaQuery.removeListener) {
+          mediaQuery.removeListener(syncEnvironment);
+        }
       }
-      window.removeEventListener('resize', evaluateDeviceEnvironment);
+      window.removeEventListener('resize', syncEnvironment);
     };
   }, []);
 
   return {
-    prefersReducedMotion,
-    shouldReduceMotion: prefersReducedMotion,
-    isMobile,
-    isLowPower,
+    prefersReducedMotion: env.prefersReducedMotion,
+    shouldReduceMotion: env.prefersReducedMotion,
+    isMobile: env.isMobile,
+    isLowPower: env.isLowPower,
   };
 }

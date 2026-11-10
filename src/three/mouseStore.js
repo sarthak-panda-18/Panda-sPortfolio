@@ -17,6 +17,7 @@ export function initMouseTracking() {
   const handleMouseMove = (event) => {
     const halfWidth = window.innerWidth / 2;
     const halfHeight = window.innerHeight / 2;
+    if (halfWidth <= 0 || halfHeight <= 0) return;
     // Normalized [-1, 1]
     mouseStore.targetX = (event.clientX - halfWidth) / halfWidth;
     mouseStore.targetY = -(event.clientY - halfHeight) / halfHeight;

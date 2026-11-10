@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
 import {
   sphereGeometry,
   torusGeometry,
@@ -14,7 +13,6 @@ import {
 import {
   clayMaterial,
   forestMaterial,
-  sandMaterial,
   surfaceMaterial,
 } from './materials';
 import { scrollStore } from '../hooks/useScrollProgress';

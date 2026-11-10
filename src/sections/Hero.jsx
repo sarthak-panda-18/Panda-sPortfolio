@@ -16,7 +16,6 @@ import {
   fadeUp,
   maskLine,
   fade,
-  getMotionVariant,
 } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
@@ -50,7 +49,7 @@ export function Hero({ isReady = true }) {
 
   // Rotate tagline every 2.6 seconds (pauses when tab is hidden or before entrance finishes)
   useEffect(() => {
-    if (prefersReducedMotion || !isEntranceFinished) return;
+    if (prefersReducedMotion || !isEntranceFinished || profile.roles.length <= 1) return;
 
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
@@ -63,7 +62,13 @@ export function Hero({ isReady = true }) {
 
   // 2. Scroll-linked fade & drift of text column (direct DOM update, zero React re-render)
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion) {
+      if (textColumnRef.current) {
+        textColumnRef.current.style.opacity = '1';
+        textColumnRef.current.style.transform = '';
+      }
+      return;
+    }
 
     const handleScroll = () => {
       if (!textColumnRef.current) return;
@@ -222,7 +227,7 @@ export function Hero({ isReady = true }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${profile.name} on ${item.label}`}
-                      className="p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-clay/60 hover:shadow-sm transition-all duration-fast focus-visible:outline-none"
+                      className="p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-clay/60 hover:shadow-sm transition-all duration-fast"
                     >
                       <Icon size={18} strokeWidth={1.5} />
                     </a>

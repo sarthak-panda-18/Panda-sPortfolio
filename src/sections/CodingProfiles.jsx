@@ -64,7 +64,7 @@ export function CodingProfiles() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${item.platform} Profile (${item.handle})`}
-                  className="block focus-visible:outline-none"
+                  className="block rounded-card"
                 >
                   {cardContent}
                 </a>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { education, certifications } from '../data/content';
-import { GraduationCap, Award, BookOpen, CheckCircle } from 'lucide-react';
+import { GraduationCap, Award } from 'lucide-react';
 
 export function Education() {
   return (
@@ -22,40 +22,47 @@ export function Education() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Degree Card */}
-          <div className="lg:col-span-7 flex flex-col justify-between bg-surface border border-hairline rounded-card p-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="p-2.5 rounded-pill bg-sand text-clay border border-hairline">
-                  <GraduationCap size={22} strokeWidth={1.5} />
-                </span>
+          {/* Degree Cards */}
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            {education.map((edu) => (
+              <div
+                key={`${edu.degree}-${edu.institution}`}
+                className="flex flex-col justify-between bg-surface border border-hairline rounded-card p-8 h-full"
+              >
                 <div>
-                  <span className="label text-clay">Undergraduate Degree</span>
-                  <h3 className="font-serif text-2xl sm:text-3xl text-forest mt-0.5">
-                    {education[0].degree}
-                  </h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="p-2.5 rounded-pill bg-sand text-clay border border-hairline">
+                      <GraduationCap size={22} strokeWidth={1.5} />
+                    </span>
+                    <div>
+                      <span className="label text-clay">Undergraduate Degree</span>
+                      <h3 className="font-serif text-2xl sm:text-3xl text-forest mt-0.5">
+                        {edu.degree}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-hairline/60 pt-4 mt-2">
+                    <p className="font-sans font-medium text-base text-forest">
+                      {edu.institution}
+                    </p>
+                    <div className="flex items-center gap-4 mt-2">
+                      <span className="text-xs text-forest-muted">
+                        {edu.period}
+                      </span>
+                      <span className="text-hairline">•</span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-pill bg-clay/10 border border-clay/30 text-xs font-semibold text-clay">
+                        {edu.score}
+                      </span>
+                    </div>
+
+                    <p className="text-forest-muted text-sm leading-relaxed mt-4">
+                      {edu.description}
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              <div className="border-t border-hairline/60 pt-4 mt-2">
-                <p className="font-sans font-medium text-base text-forest">
-                  {education[0].institution}
-                </p>
-                <div className="flex items-center gap-4 mt-2">
-                  <span className="text-xs text-forest-muted">
-                    {education[0].period}
-                  </span>
-                  <span className="text-hairline">•</span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-pill bg-clay/10 border border-clay/30 text-xs font-semibold text-clay">
-                    {education[0].score}
-                  </span>
-                </div>
-
-                <p className="text-forest-muted text-sm leading-relaxed mt-4">
-                  {education[0].description}
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Certifications List */}

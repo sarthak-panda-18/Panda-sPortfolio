@@ -13,7 +13,7 @@ export function ThemeToggle({ className = '' }) {
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className={`relative p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-forest transition-colors duration-fast focus-visible:outline-none flex items-center justify-center cursor-pointer select-none ${className}`}
+      className={`relative p-2.5 rounded-pill border border-hairline bg-surface text-forest hover:text-clay hover:border-forest transition-colors duration-fast flex items-center justify-center cursor-pointer select-none ${className}`}
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (

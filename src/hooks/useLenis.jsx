@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import { useReducedMotion } from './useReducedMotion';
 
@@ -13,6 +13,9 @@ export function LenisProvider({ children }) {
   const { prefersReducedMotion } = useReducedMotion();
   const [lenis, setLenis] = useState(null);
   const lenisRef = useRef(null);
+  const activeLocksRef = useRef(new Set());
+  const prefersReducedMotionRef = useRef(prefersReducedMotion);
+  prefersReducedMotionRef.current = prefersReducedMotion;
 
   useEffect(() => {
     // If reduced motion is requested, do not initialize smooth wheel scrolling
@@ -29,6 +32,9 @@ export function LenisProvider({ children }) {
     });
 
     lenisRef.current = instance;
+    if (activeLocksRef.current.size > 0) {
+      instance.stop();
+    }
     setLenis(instance);
 
     let animationFrameId;
@@ -49,14 +55,20 @@ export function LenisProvider({ children }) {
   /**
    * Smoothly scrolls to target element or numeric offset with navbar clearance.
    */
-  const scrollTo = (target, options = {}) => {
+  const scrollTo = useCallback((target, options = {}) => {
     // Default offset accounts for navbar height (~80px)
     const offset = options.offset !== undefined ? options.offset : -80;
+    const reduced = prefersReducedMotionRef.current;
 
-    if (lenisRef.current && !prefersReducedMotion) {
+    if (lenisRef.current && !reduced) {
       lenisRef.current.scrollTo(target, { offset, ...options });
     } else {
       // Native fallback
+      if (target === '#') {
+        window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        return;
+      }
+
       let targetElement = null;
       if (typeof target === 'string') {
         targetElement = document.querySelector(target);
@@ -67,36 +79,46 @@ export function LenisProvider({ children }) {
       if (targetElement) {
         const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({
-          top: elementPosition + offset,
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          top: Math.max(0, elementPosition + offset),
+          behavior: reduced ? 'auto' : 'smooth',
         });
       } else if (typeof target === 'number') {
         window.scrollTo({
-          top: target,
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          top: Math.max(0, target),
+          behavior: reduced ? 'auto' : 'smooth',
         });
       }
     }
-  };
+  }, []);
 
-  const stop = () => {
+  const stop = useCallback((lockId = 'default') => {
+    activeLocksRef.current.add(lockId);
     if (lenisRef.current) {
       lenisRef.current.stop();
     }
     document.documentElement.classList.add('lenis-stopped');
     document.body.style.overflow = 'hidden';
-  };
+  }, []);
 
-  const start = () => {
+  const start = useCallback((lockId = 'default') => {
+    activeLocksRef.current.delete(lockId);
+    if (activeLocksRef.current.size > 0) {
+      return;
+    }
     if (lenisRef.current) {
       lenisRef.current.start();
     }
     document.documentElement.classList.remove('lenis-stopped');
     document.body.style.overflow = '';
-  };
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ lenis, scrollTo, stop, start }),
+    [lenis, scrollTo, stop, start]
+  );
 
   return (
-    <LenisContext.Provider value={{ lenis, scrollTo, stop, start }}>
+    <LenisContext.Provider value={contextValue}>
       {children}
     </LenisContext.Provider>
   );
@@ -112,10 +134,16 @@ export function useLenis() {
       lenis: null,
       scrollTo: (target, options = {}) => {
         const offset = options.offset !== undefined ? options.offset : -80;
+        if (target === '#') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
         const el = typeof target === 'string' ? document.querySelector(target) : target;
         if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY + offset;
+          const top = Math.max(0, el.getBoundingClientRect().top + window.scrollY + offset);
           window.scrollTo({ top, behavior: 'smooth' });
+        } else if (typeof target === 'number') {
+          window.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
         }
       },
       stop: () => {},

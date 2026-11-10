@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EASE, DURATION, maskLine, fadeUp } from '../lib/motion';
+import { EASE, DURATION, maskLine } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useLenis } from '../hooks/useLenis';
 import {
@@ -8,10 +8,8 @@ import {
   Sparkles,
   Compass,
   Code2,
-  GraduationCap,
   FolderGit2,
   Mail,
-  Zap,
 } from 'lucide-react';
 
 /**
@@ -27,12 +25,13 @@ export function Preloader({ isOpen = true, onClose }) {
   const { prefersReducedMotion } = useReducedMotion();
   const { stop, start, scrollTo } = useLenis();
   const canvasRef = useRef(null);
+  const auraRef = useRef(null);
+  const dialogRef = useRef(null);
   const isDispersingRef = useRef(false);
 
   const [currentTime, setCurrentTime] = useState('');
   const [activeSpecialtyIndex, setActiveSpecialtyIndex] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isExiting, setIsExiting] = useState(false);
+  const scrollTimerRef = useRef(null);
 
   const specialties = [
     'Full-Stack Architecture & REST APIs',
@@ -43,8 +42,10 @@ export function Preloader({ isOpen = true, onClose }) {
 
   const openTimeRef = useRef(0);
 
-  // Dynamic live clock (India Standard Time)
+  // Dynamic live clock (India Standard Time) while preloader is visible
   useEffect(() => {
+    if (!isOpen) return;
+
     const updateTime = () => {
       const now = new Date();
       const timeString = now.toLocaleTimeString('en-US', {
@@ -60,97 +61,97 @@ export function Preloader({ isOpen = true, onClose }) {
     updateTime();
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isOpen]);
 
-  // Specialty rotation every 2.4s
+  // Specialty rotation every 2.4s while preloader is visible
   useEffect(() => {
+    if (!isOpen) return;
+
     const interval = setInterval(() => {
       setActiveSpecialtyIndex((prev) => (prev + 1) % specialties.length);
     }, 2400);
     return () => clearInterval(interval);
-  }, [specialties.length]);
+  }, [isOpen, specialties.length]);
 
   // Track timestamp when opened to ignore instant accidental click triggers from navbar
   useEffect(() => {
     if (isOpen) {
       openTimeRef.current = Date.now();
-      setIsExiting(false);
       isDispersingRef.current = false;
     }
   }, [isOpen]);
 
-  const handleDismiss = (targetSection = null, force = false) => {
+  const handleDismiss = useCallback((targetSection = null, force = false) => {
     // Prevent accidental dismissal if opened in the last 260ms (e.g. from navbar click)
     if (!force && Date.now() - openTimeRef.current < 260) {
       return;
     }
 
-    setIsExiting(true);
     isDispersingRef.current = true;
 
+    start('preloader');
     if (onClose) onClose();
-    start();
     if (targetSection) {
-      setTimeout(() => {
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+      scrollTimerRef.current = setTimeout(() => {
         scrollTo(targetSection);
       }, 400);
     }
-  };
+  }, [onClose, scrollTo, start]);
 
-  // Global click / tap listener: Clicking anywhere on screen skips preloader (after cooldown)
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Keyboard shortcut listener: Press Space, Enter, or Escape to enter portfolio
   useEffect(() => {
     if (!isOpen) return;
 
-    // Small delay prevents instant trigger from the same click that opened the preloader
-    const timer = setTimeout(() => {
-      const handleGlobalClick = (e) => {
-        if (Date.now() - openTimeRef.current < 260) return;
-
-        // If clicking a specific quick tile, handle dismissal to that section
-        const quickTile = e.target.closest('[data-quick-tile]');
-        if (quickTile) {
-          const target = quickTile.getAttribute('data-quick-tile');
-          handleDismiss(target, true);
-        } else {
-          handleDismiss(null, true);
-        }
-      };
-
-      window.addEventListener('click', handleGlobalClick);
-      window.addEventListener('touchend', handleGlobalClick);
-
-      return () => {
-        window.removeEventListener('click', handleGlobalClick);
-        window.removeEventListener('touchend', handleGlobalClick);
-      };
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [isOpen]);
-
-  // Keyboard shortcut listener: Press Space or Enter to enter portfolio
-  useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isOpen && (e.code === 'Space' || e.code === 'Enter')) {
+      if (e.repeat) return;
+
+      if (e.code === 'Escape') {
+        e.preventDefault();
+        handleDismiss(null, true);
+        return;
+      }
+
+      if (e.code === 'Space' || e.code === 'Enter') {
+        // Let focused interactive elements (e.g., quick-jump tiles) handle activation themselves
+        if (e.target instanceof Element && e.target.closest('button, a')) {
+          return;
+        }
         e.preventDefault();
         handleDismiss(null, true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, handleDismiss]);
 
-  // Lock scroll while preloader is visible
+  // Lock scroll while preloader is visible & move focus inside overlay
   useEffect(() => {
     if (isOpen) {
-      stop();
-    } else {
-      start();
+      stop('preloader');
+      const focusTimer = setTimeout(() => {
+        dialogRef.current?.focus({ preventScroll: true });
+      }, 0);
+      return () => {
+        clearTimeout(focusTimer);
+        start('preloader');
+      };
     }
   }, [isOpen, stop, start]);
 
   const handleContainerMouseMove = (e) => {
-    setMousePos({ x: e.clientX, y: e.clientY });
+    if (!auraRef.current || prefersReducedMotion) return;
+    auraRef.current.style.background = `radial-gradient(650px at ${e.clientX}px ${e.clientY}px, rgba(232, 128, 88, 0.16), transparent 75%)`;
   };
 
   // Interactive Constellation Canvas effect with dynamic warp acceleration on exit
@@ -159,6 +160,7 @@ export function Preloader({ isOpen = true, onClose }) {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     let animationFrameId;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
@@ -206,14 +208,20 @@ export function Preloader({ isOpen = true, onClose }) {
         p.x += p.vx * speedMult;
         p.y += p.vy * speedMult;
 
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
+        if (p.x < 0 || p.x > width) {
+          p.x = Math.max(0, Math.min(width, p.x));
+          p.vx *= -1;
+        }
+        if (p.y < 0 || p.y > height) {
+          p.y = Math.max(0, Math.min(height, p.y));
+          p.vy *= -1;
+        }
 
         if (mouse.active && !isDispersingRef.current) {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130) {
+          if (dist > 0 && dist < 130) {
             const force = (130 - dist) / 130;
             p.x -= (dx / dist) * force * 2.2;
             p.y -= (dy / dist) * force * 2.2;
@@ -291,7 +299,12 @@ export function Preloader({ isOpen = true, onClose }) {
       {isOpen && (
         <motion.div
           key="preloader-portal-root"
-          className="fixed inset-0 z-50 overflow-hidden select-none"
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sarthak Panda Portfolio Introduction"
+          className="fixed inset-0 z-50 overflow-hidden select-none outline-none"
         >
           {/* 1. Five-Column Architectural Kinetic Curtain Slats (Staggered Lift Wave) */}
           <div className="absolute inset-0 pointer-events-none z-0 flex">
@@ -329,7 +342,7 @@ export function Preloader({ isOpen = true, onClose }) {
             }}
             onClick={(e) => {
               if (Date.now() - openTimeRef.current < 260) return;
-              if (e.target.closest('[data-quick-tile]')) return;
+              if (e.target instanceof Element && e.target.closest('[data-quick-tile]')) return;
               handleDismiss();
             }}
             onMouseMove={handleContainerMouseMove}
@@ -337,9 +350,10 @@ export function Preloader({ isOpen = true, onClose }) {
           >
             {/* Ambient Background Light Aura & Constellation Canvas */}
             <div
+              ref={auraRef}
               className="absolute inset-0 z-0 pointer-events-none opacity-45 transition-opacity duration-300"
               style={{
-                background: `radial-gradient(650px at ${mousePos.x}px ${mousePos.y}px, rgba(232, 128, 88, 0.16), transparent 75%)`,
+                background: 'radial-gradient(650px at 50% 40%, rgba(232, 128, 88, 0.16), transparent 75%)',
               }}
             />
             <canvas

@@ -15,6 +15,8 @@ export function TiltCard({ children, className = '', ...props }) {
     if (prefersReducedMotion || isMobile || !cardRef.current) return;
 
     const rect = cardRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
@@ -37,7 +39,7 @@ export function TiltCard({ children, className = '', ...props }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: transformStyle,
+        transform: prefersReducedMotion || isMobile ? undefined : transformStyle,
         transition: 'transform 200ms cubic-bezier(0.22, 1, 0.36, 1)',
         willChange: 'transform',
       }}

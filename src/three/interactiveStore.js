@@ -7,7 +7,9 @@
 export const interactive3DStore = {
   materialMode: 'ceramic', // 'ceramic' | 'chrome' | 'hologram' | 'obsidian'
   motionMode: 'float',     // 'float' | 'orbit' | 'exploded'
+  previousMotionMode: 'float',
   impulseTime: 0,
+  explodeTimer: null,
   hoveredShapeIndex: null,
   listeners: new Set(),
 
@@ -17,17 +19,29 @@ export const interactive3DStore = {
   },
 
   setMotionMode(mode) {
+    if (mode !== 'exploded') {
+      this.previousMotionMode = mode;
+    }
     this.motionMode = mode;
     this.notify();
   },
 
   triggerExplode() {
+    if (this.explodeTimer) {
+      clearTimeout(this.explodeTimer);
+    }
+    if (this.motionMode !== 'exploded') {
+      this.previousMotionMode = this.motionMode;
+    }
     this.impulseTime = Date.now();
     this.motionMode = 'exploded';
     this.notify();
-    setTimeout(() => {
-      this.motionMode = 'float';
-      this.notify();
+    this.explodeTimer = setTimeout(() => {
+      this.explodeTimer = null;
+      if (this.motionMode === 'exploded') {
+        this.motionMode = this.previousMotionMode || 'float';
+        this.notify();
+      }
     }, 2400);
   },
 

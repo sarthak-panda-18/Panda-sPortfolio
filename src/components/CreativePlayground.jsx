@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Sparkles,
   Volume2,
@@ -8,7 +7,6 @@ import {
   Zap,
   Radio,
   Compass,
-  Layers,
   Wand2,
 } from 'lucide-react';
 
@@ -30,19 +28,25 @@ const PENTATONIC_FREQS = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 
 export function CreativePlayground({ onColorMutate }) {
   const canvasRef = useRef(null);
   const audioCtxRef = useRef(null);
+  const soundEnabledRef = useRef(false);
+  const activeModeRef = useRef('gravity');
+  const audioTimerRef = useRef(null);
+  const supernovaTimerRef = useRef(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [activeMode, setActiveMode] = useState('gravity'); // 'gravity' | 'synapse' | 'nebula'
+  activeModeRef.current = activeMode;
   const [orbCount, setOrbCount] = useState(6);
   const [isSupernovaActive, setIsSupernovaActive] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Play a soft pentatonic chime note with rich organic decay
-  const playChime = (freqIndex = null, gainValue = 0.07) => {
-    if (!soundEnabled) return;
+  const playChime = useCallback((freqIndex = null, gainValue = 0.07, force = false) => {
+    if (!force && !soundEnabledRef.current) return;
 
     try {
       if (!audioCtxRef.current) {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
         audioCtxRef.current = new AudioCtx();
       }
 
@@ -55,10 +59,11 @@ export function CreativePlayground({ onColorMutate }) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      const freq =
+      const safeIndex =
         freqIndex !== null
-          ? PENTATONIC_FREQS[freqIndex % PENTATONIC_FREQS.length]
-          : PENTATONIC_FREQS[Math.floor(Math.random() * PENTATONIC_FREQS.length)];
+          ? Math.max(0, Math.min(PENTATONIC_FREQS.length - 1, Math.floor(freqIndex)))
+          : Math.floor(Math.random() * PENTATONIC_FREQS.length);
+      const freq = PENTATONIC_FREQS[safeIndex];
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now);
@@ -75,17 +80,31 @@ export function CreativePlayground({ onColorMutate }) {
       osc.stop(now + 0.85);
 
       setIsPlayingAudio(true);
-      setTimeout(() => setIsPlayingAudio(false), 200);
+      if (audioTimerRef.current) clearTimeout(audioTimerRef.current);
+      audioTimerRef.current = setTimeout(() => setIsPlayingAudio(false), 200);
     } catch {
       // AudioContext unavailable or blocked
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (audioTimerRef.current) clearTimeout(audioTimerRef.current);
+      if (supernovaTimerRef.current) clearTimeout(supernovaTimerRef.current);
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
 
   const toggleSound = () => {
     if (!soundEnabled) {
+      soundEnabledRef.current = true;
       setSoundEnabled(true);
-      playChime(3, 0.08);
+      playChime(3, 0.08, true);
     } else {
+      soundEnabledRef.current = false;
       setSoundEnabled(false);
     }
   };
@@ -93,9 +112,10 @@ export function CreativePlayground({ onColorMutate }) {
   // Canvas Physics Loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !canvas.parentElement) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     let animId;
     let width = (canvas.width = canvas.parentElement.clientWidth);
     let height = (canvas.height = 240);
@@ -135,11 +155,10 @@ export function CreativePlayground({ onColorMutate }) {
     // Mouse & Touch interaction
     const getPos = (e) => {
       const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const point = e.touches?.[0] || e.changedTouches?.[0] || e;
       return {
-        x: clientX - rect.left,
-        y: clientY - rect.top,
+        x: (point?.clientX ?? 0) - rect.left,
+        y: (point?.clientY ?? 0) - rect.top,
       };
     };
 
@@ -161,7 +180,7 @@ export function CreativePlayground({ onColorMutate }) {
       if (particles.length < 28) {
         const newColor = colors[Math.floor(Math.random() * colors.length)];
         particles.push({
-          id: Date.now(),
+          id: Date.now() + Math.random(),
           x: pos.x,
           y: pos.y,
           vx: (Math.random() - 0.5) * 3,
@@ -174,7 +193,8 @@ export function CreativePlayground({ onColorMutate }) {
         setOrbCount(particles.length);
       }
 
-      playChime(Math.floor((pos.x / width) * PENTATONIC_FREQS.length), 0.08);
+      const safeWidth = width > 0 ? width : 1;
+      playChime(Math.floor((pos.x / safeWidth) * PENTATONIC_FREQS.length), 0.08);
     };
 
     const onPointerUp = () => {
@@ -193,7 +213,8 @@ export function CreativePlayground({ onColorMutate }) {
 
     canvas.addEventListener('touchmove', onPointerMove, { passive: true });
     canvas.addEventListener('touchstart', onPointerDown, { passive: true });
-    canvas.addEventListener('touchend', onPointerUp);
+    window.addEventListener('touchend', onPointerUp);
+    window.addEventListener('touchcancel', onPointerUp);
 
     // Supernova trigger from parent
     const triggerSupernova = () => {
@@ -223,8 +244,10 @@ export function CreativePlayground({ onColorMutate }) {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
+      const mode = activeModeRef.current;
+
       // Mode-based rendering
-      if (activeMode === 'gravity') {
+      if (mode === 'gravity') {
         // --- 1. GRAVITY ORB PHYSICS ---
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
@@ -309,13 +332,19 @@ export function CreativePlayground({ onColorMutate }) {
           ctx.fill();
           ctx.shadowBlur = 0;
         }
-      } else if (activeMode === 'synapse') {
+      } else if (mode === 'synapse') {
         // --- 2. ELECTRIC SYNAPSE MODE ---
         particles.forEach((p, idx) => {
           p.x += p.vx * 0.7;
           p.y += p.vy * 0.7;
-          if (p.x < 0 || p.x > width) p.vx *= -1;
-          if (p.y < 0 || p.y > height) p.vy *= -1;
+          if (p.x < 0 || p.x > width) {
+            p.x = Math.max(0, Math.min(width, p.x));
+            p.vx *= -1;
+          }
+          if (p.y < 0 || p.y > height) {
+            p.y = Math.max(0, Math.min(height, p.y));
+            p.vy *= -1;
+          }
 
           // Connect to cursor
           if (mouse.inside) {
@@ -385,13 +414,15 @@ export function CreativePlayground({ onColorMutate }) {
       canvas.removeEventListener('mouseleave', onPointerLeave);
       canvas.removeEventListener('touchmove', onPointerMove);
       canvas.removeEventListener('touchstart', onPointerDown);
-      canvas.removeEventListener('touchend', onPointerUp);
+      window.removeEventListener('touchend', onPointerUp);
+      window.removeEventListener('touchcancel', onPointerUp);
     };
-  }, [activeMode, soundEnabled]);
+  }, [playChime]);
 
   const handleSupernova = () => {
     setIsSupernovaActive(true);
-    setTimeout(() => setIsSupernovaActive(false), 500);
+    if (supernovaTimerRef.current) clearTimeout(supernovaTimerRef.current);
+    supernovaTimerRef.current = setTimeout(() => setIsSupernovaActive(false), 500);
     if (canvasRef.current && canvasRef.current._triggerSupernova) {
       canvasRef.current._triggerSupernova();
     }

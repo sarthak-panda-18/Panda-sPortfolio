@@ -17,24 +17,30 @@ export const scrollStore = {
  */
 export function useScrollProgress(sectionIds = ['hero', 'about', 'skills', 'projects', 'education', 'contact']) {
   const [activeSection, setActiveSection] = useState(sectionIds[0] || 'hero');
+  const sectionIdsKey = sectionIds.join(',');
 
   useEffect(() => {
-    // 1. Passive scroll handler updating the mutable store
+    const ids = sectionIdsKey ? sectionIdsKey.split(',') : [];
+
+    // Passive scroll & resize handler updating the mutable store and active Scroll Spy section
     const updateScrollStore = () => {
       const scrollY = window.scrollY;
-      const totalDocHeight = document.documentElement.scrollHeight - window.innerHeight;
-      
+      const viewportHeight = window.innerHeight;
+      const totalDocHeight = document.documentElement.scrollHeight - viewportHeight;
+
       scrollStore.scrollY = scrollY;
       scrollStore.globalProgress = totalDocHeight > 0 ? Math.min(1, Math.max(0, scrollY / totalDocHeight)) : 0;
 
-      // Update per-section normalized progress
-      sectionIds.forEach((id) => {
+      let nextActive = ids[0] || 'hero';
+      const anchorY = viewportHeight * 0.35;
+
+      // Update per-section normalized progress and determine active section
+      ids.forEach((id) => {
         const element = document.getElementById(id);
         if (element) {
           const rect = element.getBoundingClientRect();
           const elementTop = rect.top + scrollY;
           const elementHeight = element.offsetHeight;
-          const viewportHeight = window.innerHeight;
 
           // Normalized progress from when element enters bottom (0) to when it leaves top (1)
           const scrollStart = elementTop - viewportHeight;
@@ -47,44 +53,30 @@ export function useScrollProgress(sectionIds = ['hero', 'about', 'skills', 'proj
           } else {
             scrollStore.sectionProgress[id] = 0;
           }
+
+          if (rect.top <= anchorY) {
+            nextActive = id;
+          }
         }
       });
+
+      // Highlight the last section when scrolled to the bottom of the page
+      if (ids.length > 0 && totalDocHeight > 0 && scrollY >= totalDocHeight - 24) {
+        nextActive = ids[ids.length - 1];
+      }
+
+      setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
     };
 
     window.addEventListener('scroll', updateScrollStore, { passive: true });
+    window.addEventListener('resize', updateScrollStore, { passive: true });
     updateScrollStore();
-
-    // 2. IntersectionObserver for active section highlighting (Scroll Spy)
-    const observerCallback = (entries) => {
-      // Find the entry that has the highest intersection ratio or is currently intersecting
-      const intersectingEntries = entries.filter((entry) => entry.isIntersecting);
-      if (intersectingEntries.length > 0) {
-        // Sort by intersection ratio or proximity to viewport center
-        const topEntry = intersectingEntries.reduce((prev, curr) => 
-          curr.intersectionRatio > prev.intersectionRatio ? curr : prev
-        );
-        setActiveSection(topEntry.target.id);
-      }
-    };
-
-    const observer = new IntersectionObserver(observerCallback, {
-      root: null,
-      rootMargin: '-20% 0px -50% 0px',
-      threshold: [0, 0.2, 0.4, 0.6, 0.8, 1.0],
-    });
-
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) {
-        observer.observe(element);
-      }
-    });
 
     return () => {
       window.removeEventListener('scroll', updateScrollStore);
-      observer.disconnect();
+      window.removeEventListener('resize', updateScrollStore);
     };
-  }, [JSON.stringify(sectionIds)]);
+  }, [sectionIdsKey]);
 
   return { activeSection };
 }

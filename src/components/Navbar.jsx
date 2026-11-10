@@ -4,7 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { nav, profile } from '../data/content';
 import { Button } from './Button';
 import { ThemeToggle } from './ThemeToggle';
-import { EASE, DURATION, staggerContainer, fadeUp, maskLine } from '../lib/motion';
+import { EASE, DURATION, staggerContainer, fadeUp, fade } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useLenis } from '../hooks/useLenis';
 import { useScrollProgress } from '../hooks/useScrollProgress';
@@ -13,7 +13,7 @@ import { useScrollProgress } from '../hooks/useScrollProgress';
  * Navbar component featuring scroll-direction awareness (hide on scroll down, show on scroll up),
  * active section scroll spy, full-screen mobile menu overlay, and light/dark theme toggle.
  */
-export function Navbar({ isReady = true, onOpenPreloader }) {
+export function Navbar({ onOpenPreloader }) {
   const { prefersReducedMotion } = useReducedMotion();
   const { scrollTo, stop, start } = useLenis();
   const sectionIds = nav.map((item) => item.href.replace('#', ''));
@@ -23,7 +23,9 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const lastScrollYRef = useRef(0);
-  const menuRef = useRef(null);
+  const hamburgerButtonRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const wasMobileMenuOpenRef = useRef(false);
 
   // 1. Scroll-direction detection & past-hero background toggle
   useEffect(() => {
@@ -47,31 +49,62 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
       lastScrollYRef.current = currentScrollY;
     };
 
+    lastScrollYRef.current = window.scrollY;
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 2. Lock scroll & handle Escape key when mobile menu is open
+  // 2. Lock scroll, manage dialog focus, close on desktop resize, & handle Escape key when mobile menu is open
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      stop();
-      const handleKeyDown = (e) => {
-        if (e.key === 'Escape') {
-          setIsMobileMenuOpen(false);
-        }
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        start();
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    } else {
-      start();
+    if (!isMobileMenuOpen) {
+      if (wasMobileMenuOpenRef.current) {
+        wasMobileMenuOpenRef.current = false;
+        hamburgerButtonRef.current?.focus({ preventScroll: true });
+      }
+      return;
     }
-  }, [isMobileMenuOpen]);
+
+    wasMobileMenuOpenRef.current = true;
+    stop('mobile-menu');
+    const focusTimer = setTimeout(() => {
+      closeButtonRef.current?.focus({ preventScroll: true });
+    }, 0);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const handleViewportChange = (e) => {
+      if (e.matches) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    if (desktopQuery.addEventListener) {
+      desktopQuery.addEventListener('change', handleViewportChange);
+    } else {
+      desktopQuery.addListener(handleViewportChange);
+    }
+
+    return () => {
+      clearTimeout(focusTimer);
+      start('mobile-menu');
+      window.removeEventListener('keydown', handleKeyDown);
+      if (desktopQuery.removeEventListener) {
+        desktopQuery.removeEventListener('change', handleViewportChange);
+      } else {
+        desktopQuery.removeListener(handleViewportChange);
+      }
+    };
+  }, [isMobileMenuOpen, stop, start]);
 
   const handleNavLinkClick = (e, href) => {
     e.preventDefault();
+    start('mobile-menu');
     setIsMobileMenuOpen(false);
     scrollTo(href);
   };
@@ -79,6 +112,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
   const handleBrandClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    start('mobile-menu');
     setIsMobileMenuOpen(false);
     if (onOpenPreloader) {
       onOpenPreloader();
@@ -94,7 +128,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
     <>
       <header
         role="banner"
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-reveal ease-earth ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-reveal ease-earth focus-within:translate-y-0 ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
         } ${
           isScrolled
@@ -107,7 +141,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
           <button
             type="button"
             onClick={handleBrandClick}
-            className="group flex items-center gap-2 font-serif text-2xl sm:text-3xl text-forest hover:text-clay transition-colors duration-fast focus-visible:outline-none cursor-pointer bg-transparent border-0 p-0 text-left"
+            className="group flex items-center gap-2 font-serif text-2xl sm:text-3xl text-forest hover:text-clay transition-colors duration-fast rounded-md cursor-pointer bg-transparent border-0 p-0 text-left"
             aria-label={`${profile.name} - Open intro cover`}
             title="Click to view opening screen"
           >
@@ -129,7 +163,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
                     key={item.label}
                     href={item.href}
                     onClick={(e) => handleNavLinkClick(e, item.href)}
-                    className={`group relative py-1 text-sm font-medium tracking-normal transition-colors duration-fast focus-visible:outline-none ${
+                    className={`group relative py-1 text-sm font-medium tracking-normal transition-colors duration-fast rounded-sm ${
                       isActive ? 'text-forest font-semibold' : 'text-forest-muted hover:text-forest'
                     }`}
                     aria-current={isActive ? 'page' : undefined}
@@ -167,12 +201,13 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
           <div className="flex md:hidden items-center space-x-2">
             <ThemeToggle />
             <button
+              ref={hamburgerButtonRef}
               type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open navigation menu'}
-              className="p-2 text-forest hover:text-clay transition-colors duration-fast focus-visible:outline-none"
+              className="p-2 rounded-pill text-forest hover:text-clay transition-colors duration-fast"
             >
               {isMobileMenuOpen ? <X size={26} strokeWidth={1.5} /> : <Menu size={26} strokeWidth={1.5} />}
             </button>
@@ -185,10 +220,9 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
         {isMobileMenuOpen && (
           <motion.div
             id="mobile-navigation"
-            ref={menuRef}
-            initial={{ opacity: 0, y: -16 }}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -16 }}
             transition={{ duration: DURATION.fast, ease: EASE }}
             className="fixed inset-0 z-50 bg-sand flex flex-col justify-between p-8 pt-24 md:hidden"
             role="dialog"
@@ -201,10 +235,11 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
               <div className="flex items-center space-x-2">
                 <ThemeToggle />
                 <button
+                  ref={closeButtonRef}
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
                   aria-label="Close navigation menu"
-                  className="p-2 text-forest hover:text-clay transition-colors duration-fast"
+                  className="p-2 rounded-pill text-forest hover:text-clay transition-colors duration-fast"
                 >
                   <X size={28} strokeWidth={1.5} />
                 </button>
@@ -213,7 +248,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
 
             {/* Nav links with staggered animation */}
             <motion.nav
-              variants={staggerContainer}
+              variants={prefersReducedMotion ? fade : staggerContainer}
               initial="hidden"
               animate="visible"
               className="flex flex-col space-y-6 my-auto"
@@ -223,7 +258,7 @@ export function Navbar({ isReady = true, onOpenPreloader }) {
                 const isActive = activeSection === targetId;
 
                 return (
-                  <motion.div key={item.label} variants={fadeUp}>
+                  <motion.div key={item.label} variants={prefersReducedMotion ? fade : fadeUp}>
                     <a
                       href={item.href}
                       onClick={(e) => handleNavLinkClick(e, item.href)}

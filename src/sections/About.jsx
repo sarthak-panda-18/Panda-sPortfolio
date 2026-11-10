@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { about, stats, profile } from '../data/content';
-import { fadeUp, staggerContainer, fade } from '../lib/motion';
-import { useReducedMotion } from '../hooks/useReducedMotion';
-import { Sparkles, Code2, Cpu, Brain, CheckCircle2 } from 'lucide-react';
+import { about, stats } from '../data/content';
+import { CheckCircle2 } from 'lucide-react';
 
 export function About() {
-  const { prefersReducedMotion } = useReducedMotion();
   const [activeTab, setActiveTab] = useState('technical');
 
   const technicalStrengths = [
@@ -22,8 +18,6 @@ export function About() {
     { title: 'Team Collaboration', desc: 'Building software in cross-functional teams to deliver impactful student tools.' },
     { title: 'Continuous Growth', desc: 'Constantly practicing data structures, algorithms, and exploring modern web standards.' },
   ];
-
-  const activeVariant = prefersReducedMotion ? fade : fadeUp;
 
   return (
     <section
@@ -59,11 +53,13 @@ export function About() {
           {/* Right Column: Interactive Skills & Mindset Tabs */}
           <div className="lg:col-span-6 bg-surface border border-hairline rounded-card p-6 md:p-8">
             {/* Tab Controls */}
-            <div className="flex items-center space-x-2 border-b border-hairline pb-4 mb-6">
+            <div className="flex items-center space-x-2 border-b border-hairline pb-4 mb-6" role="tablist" aria-label="About tabs">
               <button
                 type="button"
+                role="tab"
+                aria-selected={activeTab === 'technical'}
                 onClick={() => setActiveTab('technical')}
-                className={`text-xs uppercase tracking-wider font-medium py-2 px-4 rounded-pill transition-colors duration-fast focus-visible:outline-none ${
+                className={`text-xs uppercase tracking-wider font-medium py-2 px-4 rounded-pill transition-colors duration-fast ${
                   activeTab === 'technical'
                     ? 'bg-forest text-sand'
                     : 'text-forest-muted hover:text-forest hover:bg-sand/60'
@@ -73,8 +69,10 @@ export function About() {
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={activeTab === 'mindset'}
                 onClick={() => setActiveTab('mindset')}
-                className={`text-xs uppercase tracking-wider font-medium py-2 px-4 rounded-pill transition-colors duration-fast focus-visible:outline-none ${
+                className={`text-xs uppercase tracking-wider font-medium py-2 px-4 rounded-pill transition-colors duration-fast ${
                   activeTab === 'mindset'
                     ? 'bg-forest text-sand'
                     : 'text-forest-muted hover:text-forest hover:bg-sand/60'

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { LenisProvider } from './hooks/useLenis';
 import { ThemeProvider } from './hooks/useTheme';
 import { Preloader } from './components/Preloader';
 import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
 import { Hero } from './sections/Hero';
 import { About } from './sections/About';
 import { Skills } from './sections/Skills';
@@ -17,6 +18,14 @@ const Scene = lazy(() => import('./three/Scene'));
 export default function App() {
   const [showPreloader, setShowPreloader] = useState(true);
   const [shouldMount3D, setShouldMount3D] = useState(false);
+  const foregroundRef = useRef(null);
+
+  // Prevent keyboard focus from reaching background content while preloader curtain is open
+  useEffect(() => {
+    if (foregroundRef.current && 'inert' in foregroundRef.current) {
+      foregroundRef.current.inert = showPreloader;
+    }
+  }, [showPreloader]);
 
   // Mount 3D Canvas only after initial DOM paint via requestIdleCallback or short timer
   useEffect(() => {
@@ -55,11 +64,12 @@ export default function App() {
         </div>
 
         {/* 3. Main Foreground Content Layer */}
-        <div className="relative z-10 flex flex-col min-h-screen bg-transparent text-forest">
-          <Navbar
-            isReady={!showPreloader}
-            onOpenPreloader={() => setShowPreloader(true)}
-          />
+        <div
+          ref={foregroundRef}
+          aria-hidden={showPreloader}
+          className="relative z-10 flex flex-col min-h-screen bg-transparent text-forest"
+        >
+          <Navbar onOpenPreloader={() => setShowPreloader(true)} />
 
           <main className="flex-grow">
             <Hero isReady={!showPreloader} />
@@ -70,6 +80,8 @@ export default function App() {
             <CodingProfiles />
             <Contact />
           </main>
+
+          <Footer />
         </div>
       </LenisProvider>
     </ThemeProvider>

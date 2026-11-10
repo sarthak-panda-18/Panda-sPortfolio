@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { LIGHTING, CAMERA } from './constants';
 import { HeroCluster } from './HeroCluster';
 import { SectionAccents } from './SectionAccents';
@@ -23,7 +23,7 @@ class SceneErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.warn('[3D Scene] WebGL encountered an issue:', error, errorInfo);
     }
   }
@@ -44,7 +44,7 @@ function PerformanceGuard() {
   const hasWarnedRef = useRef(false);
 
   useFrame((_, delta) => {
-    if (process.env.NODE_ENV !== 'development' || hasWarnedRef.current) return;
+    if (!import.meta.env.DEV || hasWarnedRef.current) return;
 
     // delta > 0.025s equates to < 40 FPS
     if (delta > 0.025) {
@@ -65,10 +65,13 @@ function PerformanceGuard() {
  * Inner Scene graph with studio lighting, Hero cluster, and Section accents.
  */
 function SceneContent({ isReady, isMobile, isLowPower, prefersReducedMotion, isDark }) {
-  // Sync 3D materials with theme
+  const invalidate = useThree((state) => state.invalidate);
+
+  // Sync 3D materials with theme and trigger redraw when running on demand
   useEffect(() => {
     updateMaterialsTheme(isDark);
-  }, [isDark]);
+    invalidate();
+  }, [isDark, prefersReducedMotion, isReady, invalidate]);
 
   return (
     <>

@@ -28,7 +28,7 @@ export function Button({
 
   // Handle magnetic desktop hover effect (max 6px pull)
   const handleMouseMove = (event) => {
-    if (prefersReducedMotion || isMobile || !buttonRef.current) return;
+    if (disabled || prefersReducedMotion || isMobile || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -48,6 +48,10 @@ export function Button({
   };
 
   const handleClick = (event) => {
+    if (disabled) {
+      event.preventDefault();
+      return;
+    }
     if (href && href.startsWith('#')) {
       event.preventDefault();
       scrollTo(href);
@@ -82,6 +86,7 @@ export function Button({
   };
 
   const currentVariant = variantStyles[variant] || variantStyles.primary;
+  const isFullWidth = className.includes('w-full');
 
   const content = (
     <motion.div
@@ -89,14 +94,16 @@ export function Button({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       animate={{
-        x: magneticOffset.x,
-        y: magneticOffset.y,
+        x: disabled ? 0 : magneticOffset.x,
+        y: disabled ? 0 : magneticOffset.y,
       }}
       transition={{
         duration: DURATION.fast,
         ease: EASE,
       }}
-      className={`group relative inline-flex items-center justify-center rounded-pill px-6 py-3 text-sm font-medium tracking-normal overflow-hidden transition-colors cursor-pointer select-none ${currentVariant.container} ${className}`}
+      className={`relative inline-flex items-center justify-center rounded-pill px-6 py-3 text-sm font-medium tracking-normal overflow-hidden transition-colors select-none ${
+        disabled ? 'cursor-not-allowed' : 'group cursor-pointer'
+      } ${currentVariant.container} ${className}`}
       {...props}
     >
       {/* Sliding fill background layer (warm clay orange) */}
@@ -119,7 +126,7 @@ export function Button({
         target={target}
         rel={target === '_blank' ? (rel || 'noopener noreferrer') : rel}
         aria-label={ariaLabel}
-        className="inline-block focus-visible:outline-none"
+        className={`${isFullWidth ? 'block w-full' : 'inline-block'} rounded-pill`}
       >
         {content}
       </a>
@@ -132,8 +139,9 @@ export function Button({
       disabled={disabled}
       onClick={handleClick}
       aria-label={ariaLabel}
-      className={`inline-block bg-transparent p-0 border-0 focus-visible:outline-none rounded-pill ${disabled ? 'opacity-60 cursor-not-allowed' : ''
-        }`}
+      className={`${isFullWidth ? 'block w-full' : 'inline-block'} bg-transparent p-0 border-0 rounded-pill ${
+        disabled ? 'opacity-60 cursor-not-allowed' : ''
+      }`}
     >
       {content}
     </button>
