@@ -5,7 +5,6 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useLenis } from '../hooks/useLenis';
 import {
   ArrowRight,
-  Sparkles,
   Compass,
   Code2,
   FolderGit2,
@@ -318,7 +317,7 @@ export function Preloader({ isOpen = true, onClose }) {
                   delay: prefersReducedMotion ? 0 : index * 0.065,
                   ease: [0.85, 0, 0.15, 1],
                 }}
-                className="w-1/5 h-full bg-[#141c17] relative border-r border-white/[0.04] last:border-r-0"
+                className="w-1/5 h-full bg-[#111216] relative border-r border-white/[0.04] last:border-r-0"
               >
                 {/* Luminous terracotta trailing beam at bottom of each slat */}
                 <div
@@ -366,12 +365,11 @@ export function Preloader({ isOpen = true, onClose }) {
               {/* Top Header Metadata Bar */}
               <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
                 <div className="flex items-center gap-3">
-                  <span className="w-2 h-2 rounded-full bg-[#e88058] animate-ping" />
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                     <span className="font-serif text-base sm:text-lg text-[#f5f1ea] tracking-tight">
                       Sarthak Panda
                     </span>
-                    <span className="hidden sm:inline text-white/30">•</span>
+                    <span className="hidden sm:inline text-white/30">|</span>
                     <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-sans font-medium text-[#e88058]">
                       Full-Stack &amp; Creative Engineer
                     </span>
@@ -379,11 +377,12 @@ export function Preloader({ isOpen = true, onClose }) {
                 </div>
 
                 <div className="flex items-center gap-3 text-xs font-mono">
-                  <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#a8b4ad] text-[11px]">
+                  <span className="hidden md:inline-flex items-center gap-1.5 text-[#a4a3ac] text-[11px]">
                     <Compass size={12} className="text-[#e88058]" />
                     Andhra Pradesh, India
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/15 text-[#f5f1ea] font-medium text-[11px]">
+                  <span className="hidden md:inline text-white/25">|</span>
+                  <span className="text-[#f5f1ea] font-medium text-[11px]">
                     {currentTime || 'IST'}
                   </span>
                 </div>
@@ -393,8 +392,7 @@ export function Preloader({ isOpen = true, onClose }) {
               <div className="my-auto py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
                 {/* Left Column: Bold Typography & Rotating Specialization */}
                 <div className="lg:col-span-7 flex flex-col space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] border border-white/15 text-xs text-[#f4a261] w-fit">
-                    <Sparkles size={13} className="text-[#e88058]" />
+                  <div className="text-xs text-[#f4a261] w-fit">
                     <span className="font-sans font-medium tracking-wide">
                       Welcome to my portfolio space
                     </span>
@@ -429,8 +427,7 @@ export function Preloader({ isOpen = true, onClose }) {
                   </div>
 
                   {/* Dynamic Specialization Reveal */}
-                  <div className="pt-1 flex items-center gap-2 text-sm sm:text-base min-h-[1.75rem]">
-                    <span className="text-[#e88058] shrink-0">✦</span>
+                  <div className="pt-1 flex items-center text-sm sm:text-base min-h-[1.75rem]">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={activeSpecialtyIndex}
@@ -458,7 +455,7 @@ export function Preloader({ isOpen = true, onClose }) {
                         e.stopPropagation();
                         handleDismiss();
                       }}
-                      className="group relative inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-pill bg-[#e88058] text-[#141c17] font-semibold text-xs sm:text-sm shadow-xl hover:bg-[#f5f1ea] hover:text-[#141c17] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+                      className="group relative inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-pill bg-[#e88058] text-[#111216] font-semibold text-xs sm:text-sm shadow-xl hover:bg-[#f5f1ea] hover:text-[#111216] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         <span>Explore Full Portfolio</span>
@@ -487,7 +484,9 @@ export function Preloader({ isOpen = true, onClose }) {
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
                         <span className="ml-2 font-mono text-[11px] text-[#f5f1ea]/80">sarthak_sys.sh</span>
                       </div>
-                      <span className="text-[10px] font-mono text-emerald-400 font-medium">● ACTIVE</span>
+                      <span className="text-[10px] font-mono text-emerald-400 font-medium">
+                        ACTIVE
+                      </span>
                     </div>
 
                     <div className="font-mono text-[11px] sm:text-xs text-[#d8cebe] space-y-1.5 pt-2.5 leading-relaxed">
@@ -522,10 +521,10 @@ export function Preloader({ isOpen = true, onClose }) {
                           className="group p-3 sm:p-3.5 rounded-card border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#e88058]/60 backdrop-blur-sm transition-all duration-fast text-left flex flex-col justify-between cursor-pointer"
                         >
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="p-1.5 rounded-md bg-white/[0.08] text-[#e88058] group-hover:bg-[#e88058] group-hover:text-[#141c17] transition-colors duration-fast">
+                            <span className="p-1.5 rounded-md bg-white/[0.08] text-[#e88058] group-hover:bg-[#e88058] group-hover:text-[#111216] transition-colors duration-fast">
                               <Icon size={14} strokeWidth={2} />
                             </span>
-                            <span className="text-[9.5px] font-mono text-[#f4a261] px-1.5 py-0.5 rounded-full bg-white/[0.08]">
+                            <span className="text-[9.5px] font-mono text-[#f4a261]">
                               {tile.tag}
                             </span>
                           </div>
@@ -547,17 +546,15 @@ export function Preloader({ isOpen = true, onClose }) {
 
               {/* Bottom Footer Metadata Bar */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-[#a8b4ad] border-t border-white/10 pt-3 sm:pt-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#e88058]" />
+                <div>
                   <span className="text-[11px] sm:text-xs">Full-Stack &amp; Creative Engineering Portfolio</span>
                 </div>
 
                 <div className="flex items-center gap-3 text-[11px] sm:text-xs">
-                  <span className="inline-flex items-center gap-1.5 text-emerald-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-emerald-300">
                     Available for New Opportunities
                   </span>
-                  <span className="text-white/30 hidden md:inline">•</span>
+                  <span className="text-white/30 hidden md:inline">|</span>
                   <button
                     type="button"
                     onClick={(e) => {

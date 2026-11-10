@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import { Hero } from './sections/Hero';
 import { About } from './sections/About';
 import { Skills } from './sections/Skills';
+import { Internships } from './sections/Internships';
 import { Projects } from './sections/Projects';
 import { Education } from './sections/Education';
 import { CodingProfiles } from './sections/CodingProfiles';
@@ -75,6 +76,7 @@ export default function App() {
             <Hero isReady={!showPreloader} />
             <About />
             <Skills />
+            <Internships />
             <Projects />
             <Education />
             <CodingProfiles />

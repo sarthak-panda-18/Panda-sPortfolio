@@ -1,10 +1,11 @@
 import React from 'react';
 import { codingProfiles } from '../data/content';
-import { Code2, Terminal, ArrowUpRight } from 'lucide-react';
+import { Code2, ArrowUpRight } from 'lucide-react';
+import { CodeChefIcon } from '../components/CodeChefIcon';
 
 const profileIcons = {
   LeetCode: Code2,
-  CodeChef: Terminal,
+  CodeChef: CodeChefIcon,
 };
 
 export function CodingProfiles() {
@@ -35,7 +36,7 @@ export function CodingProfiles() {
             const cardContent = (
               <div className="bg-surface border border-hairline rounded-card p-6 flex flex-col justify-between h-full hover:border-forest/50 transition-colors duration-fast group">
                 <div className="flex items-start justify-between">
-                  <span className="p-3 rounded-pill bg-sand text-clay border border-hairline">
+                  <span className="p-3 rounded-xl bg-sand text-clay border border-hairline">
                     <Icon size={20} strokeWidth={1.5} />
                   </span>
                   {hasUrl && (

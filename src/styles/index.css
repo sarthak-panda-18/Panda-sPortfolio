@@ -14,13 +14,13 @@
   }
 
   .dark, [data-theme="dark"] {
-    --color-sand: 14 18 16; /* #0E1210 Deep obsidian earth */
-    --color-surface: 23 30 26; /* #171E1A Elevated modern card surface */
-    --color-forest: 245 241 234; /* #F5F1EA High-clarity warm cream headings & text */
-    --color-forest-muted: 168 180 173; /* #A8B4AD Readable soft sage-grey */
-    --color-clay: 232 128 88; /* #E88058 Vibrant luminous terracotta */
-    --color-clay-contrast: 14 18 16; /* #0E1210 Deep dark text on buttons */
-    --color-hairline: 42 54 48; /* #2A3630 Defined borders */
+    --color-sand: 15 15 17; /* #0F0F11 Deep obsidian charcoal background */
+    --color-surface: 24 24 28; /* #18181C Elevated graphite card surface */
+    --color-forest: 244 240 234; /* #F4F0EA Warm alabaster headings & text */
+    --color-forest-muted: 164 163 172; /* #A4A3AC High-clarity neutral ash grey */
+    --color-clay: 234 126 84; /* #EA7E54 Rich terracotta accent */
+    --color-clay-contrast: 15 15 17; /* #0F0F11 Crisp dark text on accent CTAs */
+    --color-hairline: 43 43 52; /* #2B2B34 Clean graphite borders */
   }
 
   html {
@@ -134,12 +134,20 @@ html.lenis, html.lenis body {
     }
   }
 
+  .dark body {
+    background-image: radial-gradient(
+      ellipse 75% 50% at 78% -8%,
+      rgba(234, 126, 84, 0.08),
+      transparent 65%
+    );
+  }
+
   .dark .bg-surface {
-    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   }
 
   .dark input, .dark textarea {
-    background-color: rgba(14, 18, 16, 0.7);
+    background-color: rgba(15, 15, 17, 0.85);
   }
 }
 

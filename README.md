@@ -1,4 +1,4 @@
-# 🌿 Sarthak Panda — Modern 3D Developer Portfolio
+# Sarthak Panda — Modern 3D Developer Portfolio
 
 <div align="center">
 
@@ -18,25 +18,25 @@
 
 ---
 
-## ✨ Overview
+## Overview
 
 This portfolio is an interactive showcase of full-stack projects, technical competencies, and algorithmic achievements. Built with **React 18**, **Three.js / React Three Fiber**, **Tailwind CSS**, and **Framer Motion**, it delivers an engaging visual experience while maintaining high performance, clean architecture, and full mobile responsiveness.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-- 🌐 **Interactive 3D Elements**: Fluid 3D geometric clusters and section accents powered by `@react-three/fiber` and `@react-three/drei` that react dynamically to cursor movement.
-- 🎨 **Warm Earth Aesthetics & Theming**: Custom curated color palette with seamless Dark / Light mode switching and persistent theme state.
-- 🌊 **Smooth Momentum Scrolling**: Integrated with [Lenis](https://lenis.darkroom.engineering/) for a fluid, continuous scrolling experience.
-- ⚡ **Optimized Performance**: Lazy-loaded 3D canvas via `requestIdleCallback`, deferred non-critical assets, and zero layout shift.
-- 📱 **Fully Responsive & Accessible**: Semantic HTML5 markup, ARIA labels, responsive typography, and mobile-friendly touch interactions.
-- 📝 **Centralized Content Architecture**: Single source of truth (`src/data/content.js`) making updates to projects, skills, education, and links effortless.
-- 📬 **Serverless Contact Form**: Interactive contact section with Web3Forms integration for direct email notifications.
+- **Interactive 3D Elements**: Fluid 3D geometric clusters and section accents powered by `@react-three/fiber` and `@react-three/drei` that react dynamically to cursor movement.
+- **Warm Earth Aesthetics & Theming**: Custom curated color palette with seamless Dark / Light mode switching and persistent theme state.
+- **Smooth Momentum Scrolling**: Integrated with [Lenis](https://lenis.darkroom.engineering/) for a fluid, continuous scrolling experience.
+- **Optimized Performance**: Lazy-loaded 3D canvas via `requestIdleCallback`, deferred non-critical assets, and zero layout shift.
+- **Fully Responsive & Accessible**: Semantic HTML5 markup, ARIA labels, responsive typography, and mobile-friendly touch interactions.
+- **Centralized Content Architecture**: Single source of truth (`src/data/content.js`) making updates to projects, skills, education, and links effortless.
+- **Serverless Contact Form**: Interactive contact section with Web3Forms integration for direct email notifications.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Category | Technologies |
 | :--- | :--- |
@@ -50,7 +50,7 @@ This portfolio is an interactive showcase of full-stack projects, technical comp
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 ├── public/                 # Static assets (favicons, OG images)
@@ -64,13 +64,14 @@ This portfolio is an interactive showcase of full-stack projects, technical comp
 │   │   ├── TiltCard.jsx    # 3D hover tilt card component
 │   │   └── Footer.jsx      # Portfolio footer
 │   ├── data/
-│   │   └── content.js      # 🎯 Single source of truth for all content
+│   │   └── content.js      # Single source of truth for all content
 │   ├── hooks/              # Custom React hooks (useLenis, useTheme)
 │   ├── lib/                # Utility functions & helpers
 │   ├── sections/           # Page sections
 │   │   ├── Hero.jsx        # Landing hero section
 │   │   ├── About.jsx       # Biography and key metrics
 │   │   ├── Skills.jsx      # Categorized technical competencies
+│   │   ├── Internships.jsx # Virtual internship experience & deliverables
 │   │   ├── Projects.jsx    # Featured work with interactive cards
 │   │   ├── Education.jsx   # Academics & Certifications
 │   │   ├── CodingProfiles.jsx # Competitive programming handles
@@ -91,7 +92,7 @@ This portfolio is an interactive showcase of full-stack projects, technical comp
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps to run the portfolio locally on your machine.
 
@@ -149,11 +150,11 @@ npm run preview
 
 ---
 
-## ⚙️ Customization Guide
+## Customization Guide
 
 All personal info, projects, skills, and links can be modified in one place without touching JSX or UI code:
 
-📂 **Edit [`src/data/content.js`](src/data/content.js)**:
+**Edit [`src/data/content.js`](src/data/content.js)**:
 
 - **Profile Info**: Name, roles, summary, location, email.
 - **Projects**: Add/remove projects, live URLs, GitHub repos, tags, and highlights.
@@ -163,7 +164,7 @@ All personal info, projects, skills, and links can be modified in one place with
 
 ---
 
-## 🏆 Featured Projects
+## Featured Projects
 
 | Project | Description | Live Demo | Repository |
 | :--- | :--- | :---: | :---: |
@@ -179,7 +180,7 @@ All personal info, projects, skills, and links can be modified in one place with
 
 ---
 
-## 📬 Contact & Connect
+## Contact & Connect
 
 - **Portfolio**: [panda-s-portfolio.vercel.app](https://panda-s-portfolio.vercel.app/)
 - **GitHub**: [@sarthak-panda-18](https://github.com/sarthak-panda-18)
@@ -189,7 +190,7 @@ All personal info, projects, skills, and links can be modified in one place with
 
 ---
 
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
 

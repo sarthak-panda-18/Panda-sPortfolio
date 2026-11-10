@@ -31,7 +31,7 @@ export function Education() {
               >
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="p-2.5 rounded-pill bg-sand text-clay border border-hairline">
+                    <span className="p-2.5 rounded-xl bg-sand text-clay border border-hairline">
                       <GraduationCap size={22} strokeWidth={1.5} />
                     </span>
                     <div>
@@ -46,12 +46,12 @@ export function Education() {
                     <p className="font-sans font-medium text-base text-forest">
                       {edu.institution}
                     </p>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-3 mt-2">
                       <span className="text-xs text-forest-muted">
                         {edu.period}
                       </span>
                       <span className="text-hairline">•</span>
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-pill bg-clay/10 border border-clay/30 text-xs font-semibold text-clay">
+                      <span className="text-xs font-medium text-clay">
                         {edu.score}
                       </span>
                     </div>
@@ -69,7 +69,7 @@ export function Education() {
           <div className="lg:col-span-5 bg-surface border border-hairline rounded-card p-8 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-6">
-                <span className="p-2.5 rounded-pill bg-sand text-clay border border-hairline">
+                <span className="p-2.5 rounded-xl bg-sand text-clay border border-hairline">
                   <Award size={22} strokeWidth={1.5} />
                 </span>
                 <div>

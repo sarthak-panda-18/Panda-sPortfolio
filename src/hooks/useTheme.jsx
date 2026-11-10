@@ -37,7 +37,7 @@ export function ThemeProvider({ children }) {
 
     const themeMeta = document.querySelector('meta[name="theme-color"]');
     if (themeMeta) {
-      themeMeta.setAttribute('content', isDark ? '#0E1210' : '#EDE6DA');
+      themeMeta.setAttribute('content', isDark ? '#0F0F11' : '#EDE6DA');
     }
 
     try {

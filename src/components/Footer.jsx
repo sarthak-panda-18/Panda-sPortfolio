@@ -26,7 +26,7 @@ export function Footer() {
         </div>
 
         {/* Middle: Navigation Links */}
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           {nav.map((item) => (
             <a
               key={item.label}

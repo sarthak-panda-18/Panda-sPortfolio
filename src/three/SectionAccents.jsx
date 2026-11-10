@@ -61,6 +61,27 @@ const SECTION_ACCENT_CONFIG = [
     ],
   },
   {
+    sectionId: 'internships',
+    items: [
+      {
+        geometry: capsuleGeometry,
+        lowPolyGeometry: lowPolySphereGeometry,
+        material: forestMaterial,
+        basePos: [3.3, 0.25, -0.2],
+        baseRot: [0.25, 0.4, 0.25],
+        scale: 0.5,
+      },
+      {
+        geometry: sphereGeometry,
+        lowPolyGeometry: lowPolySphereGeometry,
+        material: clayMaterial,
+        basePos: [2.95, -0.45, 0.2],
+        baseRot: [0, 0, 0],
+        scale: 0.32,
+      },
+    ],
+  },
+  {
     sectionId: 'projects',
     items: [
       {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Sparkles,
+  Atom,
   Volume2,
   VolumeX,
   RotateCcw,
@@ -443,7 +443,7 @@ export function CreativePlayground({ onColorMutate }) {
       <div className="flex items-center justify-between pb-3 border-b border-hairline/80">
         <div className="flex items-center gap-2">
           <span className="p-1 rounded-md bg-clay/10 text-clay">
-            <Sparkles size={14} className="animate-pulse" />
+            <Atom size={14} />
           </span>
           <div>
             <h4 className="font-serif text-sm sm:text-base text-forest leading-none">
@@ -521,8 +521,8 @@ export function CreativePlayground({ onColorMutate }) {
           })}
         </div>
 
-        {/* Live Orb Counter Badge in top-right */}
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-surface/80 backdrop-blur-sm border border-hairline/60 text-[10px] font-mono text-forest-muted">
+        {/* Live Orb Counter */}
+        <div className="absolute top-2 right-2 text-[10px] font-mono text-forest-muted">
           <span className="text-clay font-bold">{orbCount}</span> bodies
         </div>
       </div>

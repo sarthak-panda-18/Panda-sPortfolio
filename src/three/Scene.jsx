@@ -77,14 +77,21 @@ function SceneContent({ isReady, isMobile, isLowPower, prefersReducedMotion, isD
     <>
       {/* Matte Studio Lighting */}
       <ambientLight
-        color={isDark ? '#3A483E' : LIGHTING.ambientColor}
-        intensity={isDark ? 1.25 : LIGHTING.ambientIntensity}
+        color={isDark ? '#323640' : LIGHTING.ambientColor}
+        intensity={isDark ? 1.35 : LIGHTING.ambientIntensity}
       />
       <directionalLight
-        color={isDark ? '#FFF4E8' : LIGHTING.directionalColor}
-        intensity={isDark ? 1.45 : LIGHTING.directionalIntensity}
+        color={isDark ? '#FFF2E6' : LIGHTING.directionalColor}
+        intensity={isDark ? 1.85 : LIGHTING.directionalIntensity}
         position={LIGHTING.directionalPosition}
       />
+      {isDark && (
+        <directionalLight
+          color="#EA7E54"
+          intensity={0.45}
+          position={[5, -2, -3]}
+        />
+      )}
 
       {/* Hero Still Life Arrangement */}
       <HeroCluster

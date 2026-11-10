@@ -94,18 +94,11 @@ export function Projects() {
                   </div>
                 </div>
 
-                {/* Tech Stack Pills & Creative Live Website Action */}
+                {/* Tech Stack List & Creative Live Website Action */}
                 <div className="border-t border-hairline/60 pt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.stack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2.5 py-1 text-[11px] font-medium rounded-pill bg-sand border border-hairline text-forest"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-xs text-forest-muted leading-relaxed">
+                    {project.stack.join(' · ')}
+                  </p>
 
                   {/* Deployed Website Action Button */}
                   {liveUrl && (

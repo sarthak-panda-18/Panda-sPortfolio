@@ -147,13 +147,13 @@ export function Navbar({ onOpenPreloader }) {
           >
             <span>{profile.name}</span>
             <span className="text-[10px] uppercase font-sans tracking-widest text-clay font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-fast hidden lg:inline">
-              ✦ Intro
+              Intro
             </span>
           </button>
 
           {/* Desktop Navigation Links & Controls */}
-          <div className="hidden md:flex items-center space-x-6">
-            <nav className="flex items-center space-x-7" aria-label="Main Navigation">
+          <div className="hidden md:flex items-center space-x-5 lg:space-x-6">
+            <nav className="flex items-center space-x-5 lg:space-x-7" aria-label="Main Navigation">
               {navItemsExceptContact.map((item) => {
                 const targetId = item.href.replace('#', '');
                 const isActive = activeSection === targetId;

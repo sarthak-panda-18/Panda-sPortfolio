@@ -42,7 +42,7 @@ export function Skills() {
               >
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="p-2 rounded-pill bg-sand text-clay border border-hairline">
+                    <span className="p-2 rounded-xl bg-sand text-clay border border-hairline">
                       <Icon size={18} strokeWidth={1.5} />
                     </span>
                     <h3 className="font-sans font-medium text-base text-forest">
@@ -50,16 +50,9 @@ export function Skills() {
                     </h3>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {items.map((skill) => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center px-3 py-1.5 rounded-pill text-xs font-medium bg-sand/70 border border-hairline text-forest"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-sm text-forest-muted leading-relaxed pt-1">
+                    {items.join(' · ')}
+                  </p>
                 </div>
               </div>
             );

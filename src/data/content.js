@@ -32,6 +32,7 @@ export const social = {
 export const nav = [
   { label: "About", href: "#about" },
   { label: "Skills", href: "#skills" },
+  { label: "Internships", href: "#internships" },
   { label: "Work", href: "#projects" },
   { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
@@ -318,6 +319,152 @@ export const projects = [
     liveActionText: "Visit Live Website",
     githubUrl: "https://github.com/sarthak-panda-18/SakthiDentalClinic",
     image: "",
+  },
+];
+
+export const internships = [
+  {
+    id: "shadowfox",
+    organization: "ShadowFox",
+    role: "Full-Stack Developer Intern",
+    type: "Unpaid • Virtual Internship",
+    period: "Oct 1 – Oct 31, 2026",
+    duration: "1 Month",
+    mentor: "Mr. Aakash",
+    credential: "Certificate of Completion • MSME & ISO 9001 Certified",
+    verifier: "Surendharan TG (Program Coordinator)",
+    summary:
+      "Completed a one-month virtual Full-Stack Developer internship delivering two deployed web applications focused on responsive architecture, WCAG 2.1 AA accessibility, technical SEO, 3D WebGL performance, and Vercel deployment.",
+    deliverables: [
+      {
+        title: "Sakthi Dental Clinic Website",
+        liveUrl: "https://sakthidentalclinicv2.vercel.app/",
+        description:
+          "Built a 6-page responsive website (Home, About, Treatments, FAQs, Contact, Privacy Policy) for a dental clinic in Hosur, Tamil Nadu using pure semantic HTML5, CSS3, and vanilla JavaScript with zero frameworks.",
+        highlights: [
+          "Applied the WCAG 2.1 AA compliant 'Rose Smile' palette with Quicksand/Inter typography and responsive CSS Grid layouts",
+          "Built a pure CSS Grid FAQ accordion (no JavaScript height math), testimonial carousel, emergency call dialog, and validated contact form",
+          "Configured technical SEO and accessibility (XML sitemap, JSON-LD, ARIA attributes, keyboard navigation) plus project documentation",
+        ],
+      },
+      {
+        title: "Personal 3D Portfolio",
+        liveUrl: "https://panda-s-portfolio.vercel.app/",
+        description:
+          "Built a modern portfolio showcasing projects, skills, education, and coding profiles using a modular React 18, Vite, Tailwind CSS, and Three.js toolchain deployed on Vercel.",
+        highlights: [
+          "Engineered reusable React section components (Hero, Skills, Projects, Contact) powered by a centralized data file and Lenis smooth scrolling",
+          "Implemented dark/light theme persistence, reduced-motion support, and a Web3Forms serverless contact form via environment variables",
+          "Solved initial 3D WebGL rendering overhead by lazy-loading the Three.js canvas without blocking core content",
+        ],
+      },
+    ],
+    outcomes: [
+      {
+        label: "3D Performance",
+        detail: "Eliminated initial render bottleneck by lazy-loading the Three.js canvas",
+      },
+      {
+        label: "Zero-JS Accordion",
+        detail: "Built smooth FAQ expand/collapse transitions purely with CSS Grid",
+      },
+      {
+        label: "WCAG 2.1 AA Contrast",
+        detail: "Tuned the Rose Smile color palette to meet accessible text contrast ratios",
+      },
+    ],
+    stack: [
+      "React 18",
+      "Vite",
+      "Tailwind CSS",
+      "Three.js",
+      "JavaScript",
+      "HTML5",
+      "CSS3",
+      "WCAG 2.1 AA",
+      "Technical SEO",
+      "Vercel",
+    ],
+  },
+  {
+    id: "inamigos-foundation",
+    organization: "InAmigos Foundation",
+    subtitle: "IAF — Uniting Minds For Change",
+    role: "Web Development Intern",
+    type: "Unpaid • Virtual Internship",
+    period: "Oct 10 – Oct 26, 2026",
+    duration: "Oct 2026",
+    credential: "Certificate of Internship • CSR-1 & 80G Registered NGO",
+    verifier: "Shiwani (HR Head • Issued Oct 28, 2026)",
+    summary:
+      "Completed a virtual Web Development internship across four progressive assignments for InAmigos Foundation—covering a portfolio build, a comprehensive live foundation website audit, an environmental NGO web app, and an accessible NGO donation homepage.",
+    deliverables: [
+      {
+        title: "Aarohan Foundation — NGO Homepage",
+        liveUrl: "https://ngo-website-brown-three.vercel.app/",
+        description:
+          "Designed and built an accessible NGO homepage in React 19, TypeScript, and Tailwind CSS v4 focused on donor trust, impact storytelling, and conversion.",
+        highlights: [
+          "Implemented an interactive one-time and monthly donation workflow with preset/custom tiers, UPI/card selection, and 80G tax-exemption trust cues",
+          "Built active fundraiser campaign cards with progress bars, volunteer onboarding form, testimonial carousel, and FAQ accordion",
+        ],
+      },
+      {
+        title: "Green Earth Foundation (Task 3)",
+        liveUrl: "https://greenearthfoundation.vercel.app/",
+        description:
+          "Built a responsive multi-page environmental NGO website with semantic HTML5, CSS3, and vanilla JavaScript highlighting reforestation and coastal cleanups.",
+        highlights: [
+          "Added IntersectionObserver impact counters, interactive donation tier selectors, event gallery, and toast notifications",
+          "Created dedicated Privacy Policy and Terms of Service pages alongside a responsive glassmorphism navbar and mobile drawer",
+        ],
+      },
+      {
+        title: "InAmigos Website Audit (Task 2)",
+        description:
+          "Conducted a full design, security, trust, and UX audit of inamigosfoundation.org.in across header, hero, donations, volunteers, causes, SEO, and mobile flows.",
+        highlights: [
+          "Documented 18 prioritized findings (3 critical, 8 high, 6 medium, 1 low) covering injected spam links, 80G/12A/CSR-1 trust badges, and legal/policy gaps",
+          "Proposed a streamlined 9-section NGO homepage wireframe and phased remediation action plan for conversion and Lighthouse accessibility",
+        ],
+      },
+      {
+        title: "Developer Portfolio Foundation (Task 1)",
+        liveUrl: "https://panda-s-portfolio.vercel.app/",
+        description:
+          "Built a beginner-to-production React, Vite, and Tailwind CSS developer portfolio showcasing personal background, projects, and contact workflows.",
+        highlights: [
+          "Set up structured Vite + Tailwind component architecture with environment-driven contact configuration and clean documentation",
+          "Deployed live production builds with responsive desktop and mobile layouts",
+        ],
+      },
+    ],
+    outcomes: [
+      {
+        label: "18-Point Live Site Audit",
+        detail: "Pinpointed critical source security issues, trust gaps, and donor UX improvements",
+      },
+      {
+        label: "Donor & Volunteer Flows",
+        detail: "Crafted clear 80G trust cues, preset/monthly donation flows, and campaign trackers",
+      },
+      {
+        label: "Compliance & Multi-Page UX",
+        detail: "Delivered semantic Privacy Policy and Terms pages alongside responsive drawers",
+      },
+    ],
+    stack: [
+      "React 19",
+      "TypeScript",
+      "Tailwind CSS",
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "Vite",
+      "UX & Security Audit",
+      "Accessibility",
+      "SEO",
+    ],
   },
 ];
 

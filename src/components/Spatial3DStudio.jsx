@@ -3,6 +3,9 @@ import {
   Layers,
   Orbit,
   Zap,
+  Box,
+  Aperture,
+  Moon,
 } from 'lucide-react';
 import { interactive3DStore } from '../three/interactiveStore';
 
@@ -47,10 +50,10 @@ export function Spatial3DStudio() {
   };
 
   const materialOptions = [
-    { id: 'ceramic', label: 'Ceramic', icon: '🏺', desc: 'Warm Earth Matte' },
-    { id: 'chrome', label: 'Liquid Chrome', icon: '⚡', desc: 'Mirror Metal' },
-    { id: 'hologram', label: 'Hologram', icon: '🔮', desc: 'Cyber Prism' },
-    { id: 'obsidian', label: 'Obsidian', icon: '🌑', desc: 'Velvet Glass' },
+    { id: 'ceramic', label: 'Ceramic', icon: Box, desc: 'Warm Earth Matte' },
+    { id: 'chrome', label: 'Liquid Chrome', icon: Zap, desc: 'Mirror Metal' },
+    { id: 'hologram', label: 'Hologram', icon: Aperture, desc: 'Cyber Prism' },
+    { id: 'obsidian', label: 'Obsidian', icon: Moon, desc: 'Velvet Glass' },
   ];
 
   return (
@@ -84,8 +87,8 @@ export function Spatial3DStudio() {
           </div>
         </div>
 
-        <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-sand/60 dark:bg-sand/20 border border-hairline/60 text-clay font-semibold">
-          ● 3D Active
+        <span className="text-[10px] font-mono text-clay font-medium">
+          3D Active
         </span>
       </div>
 
@@ -98,6 +101,7 @@ export function Spatial3DStudio() {
         <div className="grid grid-cols-2 gap-2">
           {materialOptions.map((mat) => {
             const isSelected = activeMaterial === mat.id;
+            const MatIcon = mat.icon;
             return (
               <button
                 key={mat.id}
@@ -109,7 +113,7 @@ export function Spatial3DStudio() {
                     : 'bg-sand/40 dark:bg-sand/15 border-hairline/70 text-forest hover:border-clay/50 hover:bg-sand/70'
                 }`}
               >
-                <span className="text-base">{mat.icon}</span>
+                <MatIcon size={15} strokeWidth={1.75} className="shrink-0" />
                 <div className="overflow-hidden">
                   <div className="text-xs font-medium leading-none line-clamp-1">
                     {mat.label}

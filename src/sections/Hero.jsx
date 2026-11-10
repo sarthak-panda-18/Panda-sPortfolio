@@ -4,9 +4,9 @@ import {
   Github,
   Linkedin,
   Code2,
-  Terminal,
   Award,
 } from 'lucide-react';
+import { CodeChefIcon } from '../components/CodeChefIcon';
 import { profile, hero, social, contact } from '../data/content';
 import { Button } from '../components/Button';
 import {
@@ -94,7 +94,7 @@ export function Hero({ isReady = true }) {
     { key: 'github', label: 'GitHub', url: social.github, icon: Github },
     { key: 'linkedin', label: 'LinkedIn', url: social.linkedin, icon: Linkedin },
     { key: 'leetcode', label: 'LeetCode', url: social.leetcode, icon: Code2 },
-    { key: 'codechef', label: 'CodeChef', url: social.codechef, icon: Terminal },
+    { key: 'codechef', label: 'CodeChef', url: social.codechef, icon: CodeChefIcon },
     { key: 'hackerrank', label: 'HackerRank', url: social.hackerrank, icon: Award },
   ].filter((item) => item.url && item.url.trim().length > 0);
 
@@ -206,7 +206,7 @@ export function Hero({ isReady = true }) {
               <Button variant="primary" href="#projects" ariaLabel="View my work projects">
                 {hero.primaryCta}
               </Button>
-              <Button variant="secondary" href="#contact" ariaLabel="Get in touch with Sarthak">
+              <Button variant="outline" href="#contact" ariaLabel="Get in touch with Sarthak">
                 {hero.secondaryCta}
               </Button>
             </motion.div>

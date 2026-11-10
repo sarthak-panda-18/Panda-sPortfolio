@@ -109,36 +109,50 @@ export function applyMaterialMode(mode, isDark = currentThemeDark) {
     surfaceMaterial.emissive.set('#000000');
   } else {
     // Default Matte Ceramic
-    clayMaterial.metalness = 0.0;
-    clayMaterial.roughness = 0.88;
     clayMaterial.emissive.set('#000000');
     clayMaterial.emissiveIntensity = 0.0;
 
-    forestMaterial.metalness = 0.0;
-    forestMaterial.roughness = 0.88;
     forestMaterial.emissive.set('#000000');
     forestMaterial.emissiveIntensity = 0.0;
 
-    sandMaterial.metalness = 0.0;
-    sandMaterial.roughness = 0.88;
     sandMaterial.emissive.set('#000000');
     sandMaterial.emissiveIntensity = 0.0;
 
-    surfaceMaterial.metalness = 0.0;
-    surfaceMaterial.roughness = 0.88;
     surfaceMaterial.emissive.set('#000000');
     surfaceMaterial.emissiveIntensity = 0.0;
 
     if (isDark) {
-      clayMaterial.color.set('#E88058');
-      forestMaterial.color.set('#35453B');
-      sandMaterial.color.set('#D8CEBE');
-      surfaceMaterial.color.set('#1C2520');
+      clayMaterial.color.set('#EA7E54');
+      clayMaterial.metalness = 0.08;
+      clayMaterial.roughness = 0.7;
+
+      forestMaterial.color.set('#444954');
+      forestMaterial.metalness = 0.08;
+      forestMaterial.roughness = 0.68;
+
+      sandMaterial.color.set('#EAE3D8');
+      sandMaterial.metalness = 0.04;
+      sandMaterial.roughness = 0.76;
+
+      surfaceMaterial.color.set('#3A3F4B');
+      surfaceMaterial.metalness = 0.1;
+      surfaceMaterial.roughness = 0.62;
     } else {
       clayMaterial.color.set(PALETTE.clay);
+      clayMaterial.metalness = 0.0;
+      clayMaterial.roughness = 0.88;
+
       forestMaterial.color.set(PALETTE.forest);
+      forestMaterial.metalness = 0.0;
+      forestMaterial.roughness = 0.88;
+
       sandMaterial.color.set(PALETTE.sand);
+      sandMaterial.metalness = 0.0;
+      sandMaterial.roughness = 0.88;
+
       surfaceMaterial.color.set(PALETTE.surface);
+      surfaceMaterial.metalness = 0.0;
+      surfaceMaterial.roughness = 0.88;
     }
   }
 }

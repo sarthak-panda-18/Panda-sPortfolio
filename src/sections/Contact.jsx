@@ -134,8 +134,7 @@ export function Contact() {
                 {contact.paragraph}
               </p>
 
-              <div className="mt-8 inline-flex items-center gap-2.5 px-4 py-2 rounded-pill bg-surface border border-hairline text-xs font-medium text-forest">
-                <span className="w-2 h-2 rounded-full bg-clay animate-pulse" />
+              <div className="mt-8 text-xs font-medium text-forest">
                 <span>{contact.availability}</span>
               </div>
             </div>
@@ -196,7 +195,7 @@ export function Contact() {
 
             {isSubmitted ? (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                <span className="p-3 rounded-pill bg-clay text-clay-contrast">
+                <span className="p-3 rounded-xl bg-clay text-clay-contrast">
                   <CheckCircle2 size={28} strokeWidth={2} />
                 </span>
                 <h4 className="font-serif text-2xl text-forest">
