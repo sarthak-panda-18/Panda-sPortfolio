@@ -168,9 +168,14 @@ All personal info, projects, skills, and links can be modified in one place with
 | Project | Description | Live Demo | Repository |
 | :--- | :--- | :---: | :---: |
 | **SkillTrack AI** | Skilling outcome intelligence platform with real-time analytics & Gemini AI | [Live Demo](https://skill-track-inky.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/SkillTrack) |
+| **CreditLens** | Full-stack FinTech loan affordability & repayment planner with Gemini AI | [Live Demo](https://credit-lens-orcin.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/CreditLens) |
+| **FarmFlow** | Cross-platform Flutter mobile app with Node.js backend & CatBoost ML price service | — | [GitHub](https://github.com/sarthak-panda-18/FarmFlow) |
 | **GetYourTasksDone** | Secure full-stack task manager with PostgreSQL, Prisma, & JWT | [Live Demo](https://get-your-tasks-done.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/GetYourTasksDone) |
 | **Land Use Land Cover** | Geospatial AI classification pipeline on Sentinel-2 satellite imagery | [Live Demo](https://land-use-land-cover.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/LandUseLandCover) |
-| **MovieDesk** | Fast movie discovery app powered by TMDB API with dynamic filtering | [Live Demo](https://movie-desk-indol.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/MovieDesk) |
+| **MovieDesk** | Fast movie discovery app powered by TMDB API with dynamic filtering | [Live Demo](https://moviedeskv1.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/MovieDesk) |
+| **Aarohan Foundation (NGO)** | Accessible NGO homepage & donation platform built with React 19 and TypeScript | [Live Demo](https://ngo-website-brown-three.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/NGOWebsite) |
+| **Green Earth Foundation** | Environmental non-profit web app with animated stats, gallery, and donation tiers | [Live Demo](https://greenearthfoundation.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/GreenEarthFoundation) |
+| **Sakthi Dental Clinic** | Accessible multi-page healthcare website with zero external dependencies | [Live Demo](https://sakthidentalclinicv2.vercel.app/) | [GitHub](https://github.com/sarthak-panda-18/SakthiDentalClinic) |
 
 ---
 

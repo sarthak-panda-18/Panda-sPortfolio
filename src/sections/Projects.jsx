@@ -18,11 +18,11 @@ export function Projects() {
             Featured Projects & Engineering Work
           </h2>
           <p className="text-forest-muted text-base sm:text-lg mt-4">
-            Production full-stack platforms, geospatial machine learning models, and interactive web apps with open-source codebases and live deployments.
+            Production full-stack platforms, cross-platform mobile apps, geospatial machine learning models, and interactive web apps with open-source codebases.
           </p>
         </div>
 
-        {/* 2x2 Project Grid */}
+        {/* Project Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {projects.map((project) => {
             const hasGithub = Boolean(project.githubUrl && project.githubUrl.trim().length > 0);
