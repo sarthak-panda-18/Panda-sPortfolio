@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Personal images
+public/preloader-portrait.jpg
+public/profile.jpg
+src/assets/profile.jpg

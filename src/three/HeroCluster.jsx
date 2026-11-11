@@ -171,6 +171,7 @@ export function HeroCluster({ isReady, isMobile, isLowPower, prefersReducedMotio
     // Scroll retreat effect: drift up, slightly back, rotate and scale down
     const scrollLift = heroScroll * 2.8;
     const scrollZ = -heroScroll * 2.2;
+    const entranceDepth = prefersReducedMotion ? 0 : (1 - entrance) * -1.2;
     const scrollScale = Math.max(0, 1 - heroScroll * 1.1);
 
     // 3. Mouse parallax (Desktop only)
@@ -192,7 +193,7 @@ export function HeroCluster({ isReady, isMobile, isLowPower, prefersReducedMotio
 
     // Apply transforms to main group
     groupRef.current.position.y = idleY + scrollLift;
-    groupRef.current.position.z = scrollZ;
+    groupRef.current.position.z = scrollZ + entranceDepth;
     groupRef.current.rotation.y =
       idleRotY + (motionMode === 'orbit' ? time * 0.6 : heroScroll * 0.4);
     groupRef.current.rotation.x = -heroScroll * 0.2;

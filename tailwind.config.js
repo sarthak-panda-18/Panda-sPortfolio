@@ -20,6 +20,7 @@ export default {
       fontFamily: {
         serif: ['"DM Serif Display"', "serif"],
         sans: ['"DM Sans"', "sans-serif"],
+        hand: ['"Satisfy"', '"Brush Script MT"', '"Segoe Script"', "cursive"],
       },
       borderRadius: {
         card: "18px",

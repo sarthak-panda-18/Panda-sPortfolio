@@ -1,577 +1,366 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { EASE, DURATION, maskLine } from '../lib/motion';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence, useIsPresent } from 'framer-motion';
+import { EASE } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useLenis } from '../hooks/useLenis';
-import {
-  ArrowRight,
-  Compass,
-  Code2,
-  FolderGit2,
-  Mail,
-} from 'lucide-react';
 
-/**
- * Creative Interactive Landing & Preloader Screen.
- * Features:
- * 1. 100% Theme-agnostic explicit contrast palette (always crystal-clear in Light and Dark modes)
- * 2. Fluid clamp() scaling for 100% zoom perfection across Chrome, Brave, Firefox, and Edge
- * 3. Interactive particle constellation canvas with cursor repulsion and warp dispersal on exit
- * 4. Multi-stage cinematic curtain lift with luminous trailing sweep border
- * 5. Interactive Terminal HUD and 4 quick-jump discovery tiles
- */
-export function Preloader({ isOpen = true, onClose }) {
+function PreloaderStage({ onClose }) {
   const { prefersReducedMotion } = useReducedMotion();
-  const { stop, start, scrollTo } = useLenis();
-  const canvasRef = useRef(null);
-  const auraRef = useRef(null);
+  const { stop, start } = useLenis();
+  const isPresent = useIsPresent();
+
   const dialogRef = useRef(null);
-  const isDispersingRef = useRef(false);
+  const veilRef = useRef(null);
+  const auraRef = useRef(null);
+  const openTimeRef = useRef(Date.now());
+  const isDismissingRef = useRef(false);
 
-  const [currentTime, setCurrentTime] = useState('');
-  const [activeSpecialtyIndex, setActiveSpecialtyIndex] = useState(0);
-  const scrollTimerRef = useRef(null);
-
-  const specialties = [
-    'Full-Stack Architecture & REST APIs',
-    'Interactive React & Node.js Systems',
-    'Data Structures & Algorithmic Problem Solving',
-    'Scalable Cloud Deployments & Database Design',
-  ];
-
-  const openTimeRef = useRef(0);
-
-  // Dynamic live clock (India Standard Time) while preloader is visible
+  // Lock Lenis scroll and place keyboard focus on the preloader dialog on mount
   useEffect(() => {
-    if (!isOpen) return;
+    openTimeRef.current = Date.now();
+    isDismissingRef.current = false;
+    stop('preloader');
 
-    const updateTime = () => {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('en-US', {
-        timeZone: 'Asia/Kolkata',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      });
-      setCurrentTime(timeString);
-    };
+    const focusTimer = setTimeout(() => {
+      dialogRef.current?.focus({ preventScroll: true });
+    }, 0);
 
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
-  }, [isOpen]);
-
-  // Specialty rotation every 2.4s while preloader is visible
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const interval = setInterval(() => {
-      setActiveSpecialtyIndex((prev) => (prev + 1) % specialties.length);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [isOpen, specialties.length]);
-
-  // Track timestamp when opened to ignore instant accidental click triggers from navbar
-  useEffect(() => {
-    if (isOpen) {
-      openTimeRef.current = Date.now();
-      isDispersingRef.current = false;
-    }
-  }, [isOpen]);
-
-  const handleDismiss = useCallback((targetSection = null, force = false) => {
-    // Prevent accidental dismissal if opened in the last 260ms (e.g. from navbar click)
-    if (!force && Date.now() - openTimeRef.current < 260) {
-      return;
-    }
-
-    isDispersingRef.current = true;
-
-    start('preloader');
-    if (onClose) onClose();
-    if (targetSection) {
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
-      }
-      scrollTimerRef.current = setTimeout(() => {
-        scrollTo(targetSection);
-      }, 400);
-    }
-  }, [onClose, scrollTo, start]);
-
-  useEffect(() => {
     return () => {
-      if (scrollTimerRef.current) {
-        clearTimeout(scrollTimerRef.current);
-      }
+      clearTimeout(focusTimer);
+      start('preloader');
     };
-  }, []);
+  }, [stop, start]);
 
-  // Keyboard shortcut listener: Press Space, Enter, or Escape to enter portfolio
+  const handleDismiss = useCallback(
+    (force = false) => {
+      if (isDismissingRef.current) return;
+      if (!force && Date.now() - openTimeRef.current < 260) {
+        return;
+      }
+
+      isDismissingRef.current = true;
+      start('preloader');
+      if (onClose) onClose();
+    },
+    [onClose, start]
+  );
+
+  // Listen for Space, Enter, or Escape while the preloader is active
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isPresent) return;
 
     const handleKeyDown = (e) => {
       if (e.repeat) return;
 
-      if (e.code === 'Escape') {
+      if (e.code === 'Escape' || e.code === 'Space' || e.code === 'Enter') {
         e.preventDefault();
-        handleDismiss(null, true);
-        return;
-      }
-
-      if (e.code === 'Space' || e.code === 'Enter') {
-        // Let focused interactive elements (e.g., quick-jump tiles) handle activation themselves
-        if (e.target instanceof Element && e.target.closest('button, a')) {
-          return;
-        }
-        e.preventDefault();
-        handleDismiss(null, true);
+        handleDismiss(true);
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, handleDismiss]);
+  }, [isPresent, handleDismiss]);
 
-  // Lock scroll while preloader is visible & move focus inside overlay
+  // Unexpected optical radial iris portal driven smoothly at 60fps during exit
   useEffect(() => {
-    if (isOpen) {
-      stop('preloader');
-      const focusTimer = setTimeout(() => {
-        dialogRef.current?.focus({ preventScroll: true });
-      }, 0);
-      return () => {
-        clearTimeout(focusTimer);
-        start('preloader');
-      };
+    if (isPresent) {
+      if (veilRef.current) {
+        veilRef.current.style.maskImage = 'none';
+        veilRef.current.style.webkitMaskImage = 'none';
+      }
+      return;
     }
-  }, [isOpen, stop, start]);
 
-  const handleContainerMouseMove = (e) => {
-    if (!auraRef.current || prefersReducedMotion) return;
-    auraRef.current.style.background = `radial-gradient(650px at ${e.clientX}px ${e.clientY}px, rgba(232, 128, 88, 0.16), transparent 75%)`;
+    if (prefersReducedMotion || !veilRef.current) return;
+
+    const veil = veilRef.current;
+    const duration = 960;
+    let startTime = null;
+    let frameId = null;
+
+    const tick = (now) => {
+      if (startTime === null) startTime = now;
+      const p = Math.min(1, (now - startTime) / duration);
+      const ease = 1 - Math.pow(1 - p, 3.2);
+
+      const inner = ease * 116;
+      const feather = 16 + ease * 18;
+      const mid1 = inner + feather * 0.35;
+      const mid2 = inner + feather * 0.72;
+      const outer = inner + feather;
+
+      const mask = `radial-gradient(circle at 50% 44%, rgba(0, 0, 0, 0) ${inner.toFixed(
+        2
+      )}%, rgba(0, 0, 0, 0.26) ${mid1.toFixed(2)}%, rgba(0, 0, 0, 0.76) ${mid2.toFixed(
+        2
+      )}%, rgba(0, 0, 0, 1) ${outer.toFixed(2)}%)`;
+
+      veil.style.maskImage = mask;
+      veil.style.webkitMaskImage = mask;
+
+      if (p < 1) {
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => {
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
+  }, [isPresent, prefersReducedMotion]);
+
+  const handleMouseMove = (e) => {
+    if (!auraRef.current || prefersReducedMotion || !isPresent) return;
+    auraRef.current.style.background = `radial-gradient(640px circle at ${e.clientX}px ${e.clientY}px, rgba(234, 126, 84, 0.11), transparent 70%)`;
   };
 
-  // Interactive Constellation Canvas effect with dynamic warp acceleration on exit
-  useEffect(() => {
-    if (prefersReducedMotion || !canvasRef.current || !isOpen) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    const mouse = { x: width / 2, y: height / 2, active: false };
-
-    const handleCanvasMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      mouse.active = true;
-    };
-    window.addEventListener('mousemove', handleCanvasMouseMove);
-
-    const particleCount = Math.min(width > 768 ? 44 : 22, 50);
-    const colors = [
-      'rgba(232, 128, 88, 0.65)',
-      'rgba(245, 241, 234, 0.5)',
-      'rgba(140, 160, 148, 0.4)',
-    ];
-
-    const particles = Array.from({ length: particleCount }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      radius: Math.random() * 1.8 + 1.2,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    }));
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Accelerate outward if user triggered dismissal
-      const speedMult = isDispersingRef.current ? 3.5 : 1;
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        p.x += p.vx * speedMult;
-        p.y += p.vy * speedMult;
-
-        if (p.x < 0 || p.x > width) {
-          p.x = Math.max(0, Math.min(width, p.x));
-          p.vx *= -1;
-        }
-        if (p.y < 0 || p.y > height) {
-          p.y = Math.max(0, Math.min(height, p.y));
-          p.vy *= -1;
-        }
-
-        if (mouse.active && !isDispersingRef.current) {
-          const dx = mouse.x - p.x;
-          const dy = mouse.y - p.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > 0 && dist < 130) {
-            const force = (130 - dist) / 130;
-            p.x -= (dx / dist) * force * 2.2;
-            p.y -= (dy / dist) * force * 2.2;
-          }
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 135) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(245, 241, 234, ${0.14 * (1 - dist / 135)})`;
-            ctx.lineWidth = 0.75;
-            ctx.stroke();
-          }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleCanvasMouseMove);
-    };
-  }, [prefersReducedMotion, isOpen]);
-
-  const quickTiles = [
-    {
-      id: 'projects',
-      label: 'Featured Creations',
-      desc: 'Full-Stack SaaS & AI platforms',
-      tag: 'Explore Work',
-      icon: FolderGit2,
-      target: '#projects',
-    },
-    {
-      id: 'skills',
-      label: 'Technical Craft',
-      desc: 'React, Node, PostgreSQL, Three.js',
-      tag: 'Core Stack',
-      icon: Code2,
-      target: '#skills',
-    },
-    {
-      id: 'about',
-      label: 'Philosophy & Story',
-      desc: 'Clean architecture & intentional design',
-      tag: 'About Me',
-      icon: Compass,
-      target: '#about',
-    },
-    {
-      id: 'contact',
-      label: 'Initiate Contact',
-      desc: "Let's build something thoughtful",
-      tag: 'Get in Touch',
-      icon: Mail,
-      target: '#contact',
-    },
-  ];
-
   return (
-    <AnimatePresence mode="wait">
-      {isOpen && (
-        <motion.div
-          key="preloader-portal-root"
-          ref={dialogRef}
-          tabIndex={-1}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Sarthak Panda Portfolio Introduction"
-          className="fixed inset-0 z-50 overflow-hidden select-none outline-none"
-        >
-          {/* 1. Five-Column Architectural Kinetic Curtain Slats (Staggered Lift Wave) */}
-          <div className="absolute inset-0 pointer-events-none z-0 flex">
-            {[0, 1, 2, 3, 4].map((index) => (
-              <motion.div
-                key={`slat-${index}`}
-                initial={{ y: '0%' }}
-                exit={{ y: '-100%' }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.82,
-                  delay: prefersReducedMotion ? 0 : index * 0.065,
-                  ease: [0.85, 0, 0.15, 1],
-                }}
-                className="w-1/5 h-full bg-[#111216] relative border-r border-white/[0.04] last:border-r-0"
-              >
-                {/* Luminous terracotta trailing beam at bottom of each slat */}
-                <div
-                  aria-hidden="true"
-                  className="absolute bottom-0 left-0 right-0 h-[3.5px] bg-gradient-to-r from-[#e88058] via-[#f4a261] to-[#e88058] shadow-[0_0_22px_rgba(232,128,88,1)] pointer-events-none"
-                />
-              </motion.div>
-            ))}
-          </div>
+    <motion.div
+      ref={dialogRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label="You are watching Sarthak Panda's portfolio"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: { duration: prefersReducedMotion ? 0.2 : 0.65, ease: EASE },
+      }}
+      exit={{
+        opacity: prefersReducedMotion ? 0 : [1, 1, 0],
+        transition: prefersReducedMotion
+          ? { duration: 0.25, ease: EASE }
+          : { duration: 1.05, times: [0, 0.72, 1], ease: 'linear' },
+      }}
+      onClick={() => handleDismiss(false)}
+      onMouseMove={handleMouseMove}
+      className={`fixed inset-0 z-50 overflow-hidden select-none outline-none flex flex-col justify-end items-center ${
+        isPresent ? 'cursor-pointer' : 'pointer-events-none'
+      }`}
+    >
+      {/* 1. Full-Screen Enhanced Monochrome Portrait + Clean Bottom Shadow Scrim (Iris Portal Masked) */}
+      <div ref={veilRef} className="absolute inset-0 bg-[#0B0B0D]">
+        <motion.img
+          src="/preloader-portrait.jpg"
+          alt="Sarthak Panda"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 1.03 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            opacity: { duration: prefersReducedMotion ? 0.15 : 1.35, ease: EASE },
+            scale: { duration: prefersReducedMotion ? 0.15 : 2.6, ease: EASE },
+          }}
+          className="absolute inset-0 w-full h-full object-cover object-[50%_34%] pointer-events-none will-change-transform"
+        />
 
-          {/* 2. Interactive Foreground Layer with Staged Content Dissolve */}
+        {/* Subtle Bottom-Only Obsidian Feather Behind Text — Keeps Portrait Clear & Luminous */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(11, 11, 13, 0.90) 0%, rgba(11, 11, 13, 0.58) 18%, rgba(11, 11, 13, 0.14) 32%, rgba(11, 11, 13, 0) 46%)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 90% 85% at 50% 40%, rgba(11, 11, 13, 0) 64%, rgba(11, 11, 13, 0.28) 100%)',
+          }}
+        />
+
+        {/* Subtle Interactive Warm Terracotta Aura */}
+        <div
+          ref={auraRef}
+          className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+          style={{
+            background:
+              'radial-gradient(640px circle at 50% 42%, rgba(234, 126, 84, 0.06), transparent 70%)',
+          }}
+        />
+      </div>
+
+      {/* 2. Dual Concentric Silk-Glow Aperture Rings Expanding Outward from Portrait Focal Center */}
+      {!prefersReducedMotion && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-[44%] -translate-y-1/2 flex items-center justify-center pointer-events-none"
+        >
           <motion.div
-            key="preloader-content-stage"
-            initial={{ opacity: 1 }}
+            initial={{ scale: 0.15, opacity: 0 }}
+            animate={{ scale: 0.15, opacity: 0 }}
             exit={{
-              opacity: 0,
-              scale: 0.95,
-              y: -30,
-              filter: 'blur(8px)',
-              transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+              scale: 25,
+              opacity: [0, 0.85, 0.35, 0],
+              transition: {
+                duration: 0.96,
+                times: [0, 0.14, 0.58, 1],
+                ease: [0.16, 1, 0.3, 1],
+              },
             }}
-            onClick={(e) => {
-              if (Date.now() - openTimeRef.current < 260) return;
-              if (e.target instanceof Element && e.target.closest('[data-quick-tile]')) return;
-              handleDismiss();
+            className="w-24 h-24 rounded-full border border-[#EA7E54]/65 shadow-[0_0_55px_rgba(234,126,84,0.35)] will-change-transform"
+          />
+          <motion.div
+            initial={{ scale: 0.12, opacity: 0 }}
+            animate={{ scale: 0.12, opacity: 0 }}
+            exit={{
+              scale: 22,
+              opacity: [0, 0.45, 0],
+              transition: {
+                duration: 0.94,
+                delay: 0.06,
+                times: [0, 0.2, 1],
+                ease: [0.16, 1, 0.3, 1],
+              },
             }}
-            onMouseMove={handleContainerMouseMove}
-            className="relative z-10 w-full h-full flex flex-col justify-between p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto overflow-x-hidden text-[#f5f1ea] cursor-pointer"
+            className="absolute w-24 h-24 rounded-full border border-[#F4F0EA]/25 will-change-transform"
+          />
+        </div>
+      )}
+
+      {/* 3. Lower-Third Symmetrical Cursive Signature Stage (Zero Overlap With Portrait) */}
+      <motion.div
+        initial={{ opacity: 1, scale: 1 }}
+        exit={
+          prefersReducedMotion
+            ? { opacity: 0, transition: { duration: 0.2, ease: EASE } }
+            : {
+                opacity: 0,
+                scale: 1.09,
+                y: 8,
+                transition: { duration: 0.46, ease: [0.16, 1, 0.3, 1] },
+              }
+        }
+        className="relative z-10 w-full max-w-4xl mx-auto px-6 pb-4 sm:pb-6 pt-2 flex flex-col items-center justify-center text-center will-change-transform"
+      >
+        <motion.div
+          aria-hidden="true"
+          initial={{
+            scaleX: prefersReducedMotion ? 1 : 0,
+            opacity: prefersReducedMotion ? 1 : 0,
+          }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
+          className="w-12 h-[1px] bg-[#EA7E54]/90 mb-1.5 sm:mb-2 mx-auto origin-center"
+        />
+
+        <div className="overflow-hidden mb-0 w-full flex justify-center">
+          <motion.p
+            initial={prefersReducedMotion ? { opacity: 1 } : { y: '100%', opacity: 0 }}
+            animate={{ y: '0%', opacity: 1 }}
+            transition={{
+              duration: prefersReducedMotion ? 0.15 : 1.15,
+              delay: prefersReducedMotion ? 0 : 0.45,
+              ease: EASE,
+            }}
+            className="font-serif italic text-base sm:text-lg md:text-xl text-[#E2E0DA] tracking-wide text-center"
           >
-            {/* Ambient Background Light Aura & Constellation Canvas */}
-            <div
-              ref={auraRef}
-              className="absolute inset-0 z-0 pointer-events-none opacity-45 transition-opacity duration-300"
-              style={{
-                background: 'radial-gradient(650px at 50% 40%, rgba(232, 128, 88, 0.16), transparent 75%)',
+            You are watching
+          </motion.p>
+        </div>
+
+        <div className="relative flex flex-col items-center justify-center w-full overflow-visible">
+          <motion.p
+            initial={
+              prefersReducedMotion
+                ? { opacity: 1 }
+                : { clipPath: 'inset(-30% 106% -30% -10%)', opacity: 0.7 }
+            }
+            animate={{
+              clipPath: 'inset(-30% -10% -30% -10%)',
+              opacity: 1,
+              transitionEnd: { clipPath: 'none' },
+            }}
+            transition={{
+              duration: prefersReducedMotion ? 0.15 : 2.35,
+              delay: prefersReducedMotion ? 0 : 0.9,
+              ease: [0.42, 0, 0.58, 1],
+            }}
+            className="font-hand font-normal text-[1.95rem]/[1.32] sm:text-[2.25rem]/[1.32] md:text-[2.75rem]/[1.32] lg:text-[3.15rem]/[1.32] !leading-[1.32] text-[#F4F0EA] md:whitespace-nowrap text-center px-3 pt-2 pb-1.5 drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)]"
+          >
+            Sarthak Panda&apos;s{' '}
+            <span className="text-[#EA7E54] whitespace-nowrap">portfolio</span>
+          </motion.p>
+
+          {/* Symmetrical Ink Flourish Positioned Cleanly Below Cursive Descenders */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 420 14"
+            fill="none"
+            className="w-[82%] max-w-[280px] sm:max-w-[360px] h-3 mx-auto mt-1 sm:mt-1.5 overflow-visible pointer-events-none block"
+          >
+            <motion.path
+              d="M 8 9 Q 210 2, 412 9"
+              stroke="#EA7E54"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              initial={{
+                pathLength: prefersReducedMotion ? 1 : 0,
+                opacity: prefersReducedMotion ? 0.9 : 0,
+              }}
+              animate={{ pathLength: 1, opacity: 0.92 }}
+              transition={{
+                pathLength: {
+                  duration: prefersReducedMotion ? 0.1 : 1.55,
+                  delay: prefersReducedMotion ? 0 : 2.2,
+                  ease: [0.35, 0.05, 0.35, 1],
+                },
+                opacity: {
+                  duration: 0.2,
+                  delay: prefersReducedMotion ? 0 : 2.2,
+                },
               }}
             />
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 z-0 pointer-events-none opacity-90"
-            />
+          </svg>
+        </div>
 
-            {/* Max-Width Inner Responsive Wrapper */}
-            <div className="relative z-10 max-w-6xl mx-auto w-full h-full flex flex-col justify-between py-1">
-              {/* Top Header Metadata Bar */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <span className="font-serif text-base sm:text-lg text-[#f5f1ea] tracking-tight">
-                      Sarthak Panda
-                    </span>
-                    <span className="hidden sm:inline text-white/30">|</span>
-                    <span className="text-[10px] sm:text-[11px] uppercase tracking-widest font-sans font-medium text-[#e88058]">
-                      Full-Stack &amp; Creative Engineer
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-xs font-mono">
-                  <span className="hidden md:inline-flex items-center gap-1.5 text-[#a4a3ac] text-[11px]">
-                    <Compass size={12} className="text-[#e88058]" />
-                    Andhra Pradesh, India
-                  </span>
-                  <span className="hidden md:inline text-white/25">|</span>
-                  <span className="text-[#f5f1ea] font-medium text-[11px]">
-                    {currentTime || 'IST'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Main Center Stage: Responsive Dual Column Layout */}
-              <div className="my-auto py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-                {/* Left Column: Bold Typography & Rotating Specialization */}
-                <div className="lg:col-span-7 flex flex-col space-y-3">
-                  <div className="text-xs text-[#f4a261] w-fit">
-                    <span className="font-sans font-medium tracking-wide">
-                      Welcome to my portfolio space
-                    </span>
-                  </div>
-
-                  <div className="space-y-0.5 sm:space-y-1">
-                    <div className="overflow-hidden">
-                      <motion.h1
-                        variants={maskLine}
-                        initial="hidden"
-                        animate="visible"
-                        className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3.5rem,5vw,5.5rem)] text-[#f5f1ea] tracking-tight leading-[0.92]"
-                      >
-                        Sarthak
-                      </motion.h1>
-                    </div>
-                    <div className="overflow-hidden">
-                      <motion.h1
-                        variants={maskLine}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{
-                          duration: DURATION.reveal,
-                          ease: EASE,
-                          delay: 0.1,
-                        }}
-                        className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[clamp(3.5rem,5vw,5.5rem)] text-[#f5f1ea] tracking-tight leading-[0.92]"
-                      >
-                        Panda
-                      </motion.h1>
-                    </div>
-                  </div>
-
-                  {/* Dynamic Specialization Reveal */}
-                  <div className="pt-1 flex items-center text-sm sm:text-base min-h-[1.75rem]">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={activeSpecialtyIndex}
-                        initial={{ y: 6, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -6, opacity: 0 }}
-                        transition={{ duration: 0.22 }}
-                        className="font-serif italic text-[#f4a261] text-base sm:text-lg font-normal"
-                      >
-                        {specialties[activeSpecialtyIndex]}
-                      </motion.span>
-                    </AnimatePresence>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-[#a8b4ad] max-w-lg leading-relaxed pt-0.5">
-                    Building reliable full-stack applications with clean architecture,
-                    interactive 3D performance, and scalable databases.
-                  </p>
-
-                  {/* Enter CTA and Keyboard Cue */}
-                  <div className="pt-3 flex flex-wrap items-center gap-3 sm:gap-4">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDismiss();
-                      }}
-                      className="group relative inline-flex items-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-pill bg-[#e88058] text-[#111216] font-semibold text-xs sm:text-sm shadow-xl hover:bg-[#f5f1ea] hover:text-[#111216] transition-all duration-300 transform hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        <span>Explore Full Portfolio</span>
-                        <ArrowRight
-                          size={16}
-                          className="group-hover:translate-x-1.5 transition-transform duration-300"
-                        />
-                      </span>
-                      <span className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </button>
-
-                    <span className="text-[11px] text-[#a8b4ad]/70 tracking-wider">
-                      Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] text-[#f5f1ea] font-mono">Space</kbd> or click anywhere
-                    </span>
-                  </div>
-                </div>
-
-                {/* Right Column: Interactive System Terminal & Quick Discovery Tiles */}
-                <div className="lg:col-span-5 flex flex-col space-y-3">
-                  {/* Terminal HUD Card */}
-                  <div className="rounded-card border border-white/15 bg-black/45 backdrop-blur-md p-3.5 sm:p-4 shadow-2xl">
-                    <div className="flex items-center justify-between pb-2.5 border-b border-white/10 text-xs text-[#a8b4ad]">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                        <span className="ml-2 font-mono text-[11px] text-[#f5f1ea]/80">sarthak_sys.sh</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 font-medium">
-                        ACTIVE
-                      </span>
-                    </div>
-
-                    <div className="font-mono text-[11px] sm:text-xs text-[#d8cebe] space-y-1.5 pt-2.5 leading-relaxed">
-                      <p className="text-[#f4a261]">
-                        &gt; init_creative_space({'{'} status: &quot;Online&quot;, focus: &quot;Full-Stack &amp; 3D&quot; {'}'})
-                      </p>
-                      <p className="text-[#f5f1ea]/85">
-                        → Focus: Interactive React, Node.js &amp; Cloud Systems
-                      </p>
-                      <p className="text-[#f5f1ea]/85">
-                        → Vision: Clean architecture, micro-interactions &amp; high speed
-                      </p>
-                      <p className="text-[#a8b4ad] text-[10.5px]">
-                        → Core: React • Node.js • PostgreSQL • Three.js • Python
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Quick Jump Discovery Tiles Grid */}
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {quickTiles.map((tile) => {
-                      const Icon = tile.icon;
-                      return (
-                        <button
-                          key={tile.id}
-                          type="button"
-                          data-quick-tile={tile.target}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDismiss(tile.target);
-                          }}
-                          className="group p-3 sm:p-3.5 rounded-card border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#e88058]/60 backdrop-blur-sm transition-all duration-fast text-left flex flex-col justify-between cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="p-1.5 rounded-md bg-white/[0.08] text-[#e88058] group-hover:bg-[#e88058] group-hover:text-[#111216] transition-colors duration-fast">
-                              <Icon size={14} strokeWidth={2} />
-                            </span>
-                            <span className="text-[9.5px] font-mono text-[#f4a261]">
-                              {tile.tag}
-                            </span>
-                          </div>
-
-                          <div>
-                            <h4 className="font-sans font-medium text-xs text-[#f5f1ea] group-hover:text-[#f4a261] transition-colors duration-fast">
-                              {tile.label}
-                            </h4>
-                            <p className="text-[10.5px] text-[#a8b4ad] leading-tight mt-0.5 line-clamp-1">
-                              {tile.desc}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Footer Metadata Bar */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs text-[#a8b4ad] border-t border-white/10 pt-3 sm:pt-4">
-                <div>
-                  <span className="text-[11px] sm:text-xs">Full-Stack &amp; Creative Engineering Portfolio</span>
-                </div>
-
-                <div className="flex items-center gap-3 text-[11px] sm:text-xs">
-                  <span className="text-emerald-300">
-                    Available for New Opportunities
-                  </span>
-                  <span className="text-white/30 hidden md:inline">|</span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDismiss();
-                    }}
-                    className="hidden md:inline text-white/50 hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 text-[11px] sm:text-xs"
-                  >
-                    Click anywhere to skip
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+        {/* Interactive Enter Cue */}
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.95,
+            delay: prefersReducedMotion ? 0 : 2.8,
+            ease: EASE,
+          }}
+          className="mt-2 sm:mt-2.5 w-full flex justify-center"
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDismiss(true);
+            }}
+            className="group inline-flex flex-wrap items-center justify-center gap-2 text-xs sm:text-[13px] font-sans tracking-[0.14em] uppercase text-[#C4C2BC] hover:text-[#F4F0EA] transition-colors duration-fast cursor-pointer bg-transparent border-0 px-3 py-1.5"
+          >
+            <span>Press</span>
+            <kbd className="px-2 py-0.5 rounded-[5px] border border-white/25 bg-black/50 text-[11px] font-mono text-[#F4F0EA] group-hover:border-[#EA7E54]/75 transition-colors duration-fast">
+              Space
+            </kbd>
+            <span>or</span>
+            <kbd className="px-2 py-0.5 rounded-[5px] border border-white/25 bg-black/50 text-[11px] font-mono text-[#F4F0EA] group-hover:border-[#EA7E54]/75 transition-colors duration-fast">
+              Enter
+            </kbd>
+            <span className="text-white/55">to enter</span>
+          </button>
         </motion.div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }
 
+/**
+ * Full-Screen Monochrome Portrait & Cursive Opening Slate with Optical Iris Transition.
+ */
+export function Preloader({ isOpen = true, onClose }) {
+  return (
+    <AnimatePresence mode="wait">
+      {isOpen && <PreloaderStage key="preloader-stage" onClose={onClose} />}
+    </AnimatePresence>
+  );
+}
